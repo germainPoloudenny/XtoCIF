@@ -1,0 +1,271 @@
+from __future__ import annotations
+
+import argparse
+import sys
+from pathlib import Path
+from typing import Iterable, List, Sequence
+
+import numpy as np
+import pandas as pd
+
+
+DEFAULT_SEARCH_ROOTS: Sequence[Path] = (
+    Path("slurm"),
+    Path("evaluations"),
+)
+PICKLE_PATTERNS: Sequence[str] = ("*.pkl", "*.pkl.gz")
+
+
+def _coerce_bool(series: pd.Series) -> pd.Series:
+    """Convert a Series to boolean dtype while preserving ``NaN`` values."""
+    if series.dtype == bool:
+        return series
+
+    # ``astype(bool)`` would treat NaNs as ``True``; we need to keep them as
+    # missing values.  ``pd.to_numeric`` handles "True"/"False" strings as well.
+    coerced = pd.to_numeric(series, errors="coerce")
+    if coerced.notna().all():
+        return coerced.astype(bool)
+
+    return series.astype("boolean")
+
+
+def _discover_pickles() -> List[Path]:
+    """Find pickled evaluation frames using a heuristic search."""
+    discovered: List[Path] = []
+    for root in DEFAULT_SEARCH_ROOTS:
+        if not root.exists():
+            continue
+        for pattern in PICKLE_PATTERNS:
+            discovered.extend(sorted(root.rglob(pattern)))
+        if discovered:
+            break
+    return discovered
+
+
+def _iter_pickles(paths: Iterable[str]) -> Iterable[Path]:
+    """Yield pickled DataFrame paths from the provided arguments."""
+    unique_paths = []
+    for entry in paths:
+        path = Path(entry).expanduser()
+        if not path.exists():
+            print(f"⚠️  Path not found: {path}", file=sys.stderr)
+            continue
+        if path.is_dir():
+            for pattern in PICKLE_PATTERNS:
+                unique_paths.extend(sorted(path.rglob(pattern)))
+        else:
+            unique_paths.append(path)
+
+    if not unique_paths:
+        unique_paths = _discover_pickles()
+
+    seen = set()
+    for path in unique_paths:
+        if path.suffix not in {".pkl", ".gz"} and not any(
+            str(path).endswith(ext) for ext in (".pkl", ".pkl.gz")
+        ):
+            continue
+        if path.resolve() in seen:
+            continue
+        seen.add(path.resolve())
+        yield path
+
+
+def _load_frames(paths: Iterable[str]) -> pd.DataFrame:
+    frames: List[pd.DataFrame] = []
+    for path in _iter_pickles(paths):
+        try:
+            frame = pd.read_pickle(path)
+        except Exception as exc:  # pragma: no cover - for defensive CLI usage
+            print(f"❌ Unable to read {path}: {exc}", file=sys.stderr)
+            continue
+        frame["__source_file__"] = path.name
+        frames.append(frame)
+
+    if not frames:
+        raise FileNotFoundError(
+            "No evaluation pickle files found. Provide explicit paths with "
+            "`python bin/show_eval_metrics.py <file1> <file2> ...>` or place "
+            "the exported pickles inside `slurm/`."
+        )
+
+    return pd.concat(frames, ignore_index=True)
+
+
+def _format_rate(label: str, values: pd.Series) -> str:
+    values = _coerce_bool(values.dropna())
+    if values.empty:
+        return f"ℹ️  {label:<24}: aucune donnée"
+
+    positives = int(values.sum())
+    total = int(values.count())
+    rate = positives / total if total else float("nan")
+    return f"✅ {label:<24}: {rate:>6.3f} ({positives}/{total})"
+
+
+def _spacegroup_match_rate(frame: pd.DataFrame) -> str:
+    if not {"spacegroup_num_sample", "spacegroup_num_gen"}.issubset(frame.columns):
+        return "ℹ️  Spacegroup match rate     : colonne manquante"
+
+    sample = pd.to_numeric(frame["spacegroup_num_sample"], errors="coerce")
+    generated = pd.to_numeric(frame["spacegroup_num_gen"], errors="coerce")
+    mask = sample.notna() & generated.notna()
+    if not mask.any():
+        return "ℹ️  Spacegroup match rate     : aucune donnée"
+
+    matches = (sample[mask] == generated[mask]).astype(int)
+    positives = int(matches.sum())
+    total = int(matches.count())
+    rate = positives / total if total else float("nan")
+    return f"✅ Spacegroup match rate     : {rate:>6.3f} ({positives}/{total})"
+
+
+def _describe_numeric(label: str, series: pd.Series) -> List[str]:
+    numeric = pd.to_numeric(series, errors="coerce")
+    total = int(series.shape[0])
+    finite = numeric[np.isfinite(numeric)]
+    finite_count = int(finite.count())
+    if finite.empty:
+        return [f"ℹ️  {label}: aucune valeur numérique disponible"]
+
+    percentiles = finite.quantile([0.25, 0.5, 0.75, 0.9, 0.95]).rename(
+        {0.25: "25%", 0.5: "50%", 0.75: "75%", 0.9: "90%", 0.95: "95%"}
+    )
+    count_display = (
+        f"n={finite_count}/{total}"
+        if finite_count != total
+        else f"n={finite_count}"
+    )
+    summary_lines = [
+        f"📊 {label} ({count_display}):",
+        f"    mean ± std : {finite.mean():.3f} ± {finite.std(ddof=0):.3f}",
+        f"    min / max  : {finite.min():.3f} – {finite.max():.3f}",
+    ]
+    quantile_str = ", ".join(f"{idx}={val:.3f}" for idx, val in percentiles.items())
+    summary_lines.append(f"    quantiles  : {quantile_str}")
+    return summary_lines
+
+
+def _print_validity_breakdown(frame: pd.DataFrame) -> None:
+    validity_columns = [col for col in frame.columns if col.endswith("_validity")]
+    if not validity_columns:
+        return
+
+    print("\nDétails des validations :")
+    for column in sorted(validity_columns):
+        label = column.replace("_", " ")
+        print(_format_rate(label, frame[column]))
+
+
+def _print_rmsd_failure_breakdown(frame: pd.DataFrame) -> None:
+    if "rmsd" not in frame.columns or "rmsd_failure_cause" not in frame.columns:
+        return
+
+    numeric_rmsd = pd.to_numeric(frame["rmsd"], errors="coerce")
+    failure_mask = ~np.isfinite(numeric_rmsd)
+    failure_count = int(failure_mask.sum())
+    if failure_count == 0:
+        return
+
+    total = int(frame.shape[0])
+    cause_labels = {
+        "atom_count_mismatch": "Différence du nombre d'atomes",
+        "composition_mismatch": "Différence de composition",
+        "geometry_mismatch": "Incompatibilité géométrique",
+        "invalid_structure": "Structure invalide",
+        "unknown": "Cause inconnue",
+    }
+
+    print("\nAnalyse des échecs RMSD :")
+    print(f"    Total sans RMSD : {failure_count}/{total}")
+
+    cause_series = frame.loc[failure_mask, "rmsd_failure_cause"].fillna("unknown")
+    counts = cause_series.value_counts(dropna=False)
+    for cause, count in counts.items():
+        label = cause_labels.get(cause, str(cause))
+        proportion = count / failure_count if failure_count else float("nan")
+        print(f"    - {label:<32}: {proportion:>6.3f} ({int(count)}/{failure_count})")
+
+
+def _report_metrics(frame: pd.DataFrame) -> int:
+    total = len(frame)
+    print("=== Résultats de l'évaluation ===")
+    print(f"Nombre total d'échantillons : {total}")
+
+    if "validity" in frame.columns:
+        print(_format_rate("Validity rate", frame["validity"]))
+    else:
+        print("ℹ️  Validity rate             : colonne manquante")
+
+    print(_spacegroup_match_rate(frame))
+
+    # ``show_eval_metrics`` intentionally reports raw RMSD values without
+    # applying a success threshold.  Downstream tooling (e.g. ``beam_sweep`` or
+    # bespoke notebooks) is expected to decide whether a given RMSD qualifies as
+    # a "match" by supplying their own threshold when computing rates.
+    for label, column in (
+        ("RMSD", "rmsd"),
+        ("Rwp", "rwp"),
+        ("L2 distance", "l2_distance"),
+        ("Wd", "wd"),
+    ):
+        if column not in frame.columns:
+            print(f"ℹ️  {label}: colonne manquante")
+            continue
+        summary_lines = _describe_numeric(f"{label}", frame[column])
+        for line in summary_lines:
+            print(line)
+        if column == "rmsd" and summary_lines:
+            print(
+                "    (n indique le nombre de structures avec un RMSD numérique. "
+                "Aucun seuil n'est appliqué ; toute valeur finie est considérée comme "
+                "un alignement abouti.)"
+            )
+
+    _print_rmsd_failure_breakdown(frame)
+    _print_validity_breakdown(frame)
+
+    seq_columns = ["seq_len_sample", "seq_len_gen"]
+    available_seq_cols = [col for col in seq_columns if col in frame.columns]
+    if available_seq_cols:
+        print("\nLongueurs de séquences :")
+        for col in available_seq_cols:
+            for line in _describe_numeric(col, frame[col]):
+                print(line)
+
+    return 0
+
+
+def show_metrics(paths: Sequence[str]) -> int:
+    try:
+        frame = _load_frames(paths)
+    except FileNotFoundError as exc:
+        print(exc, file=sys.stderr)
+        return 1
+
+    return _report_metrics(frame)
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(
+        description="Affiche un résumé des métriques d'évaluation générées par deCIFer.",
+    )
+    parser.add_argument(
+        "paths",
+        nargs="*",
+        help=(
+            "Fichiers .pkl ou .pkl.gz contenant les résultats de `collect_evaluations`. "
+            "Vous pouvez également passer des répertoires – ils seront parcourus "
+            "récursivement. Lorsque aucun chemin n'est fourni, le script cherche "
+            "automatiquement dans `slurm/`."
+        ),
+        default=["runs/deCIFer_cifs_v1_model/eval_bsm/cifs_v1.pkl.gz"]
+    )
+    args = parser.parse_args(argv)
+
+    return show_metrics(args.paths)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

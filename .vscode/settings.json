@@ -1,0 +1,14 @@
+{
+    "python-envs.defaultEnvManager": "ms-python.python:conda",
+    "python-envs.defaultPackageManager": "ms-python.python:conda",
+    "python-envs.pythonProjects": [],
+    "latex-workshop.latex.autoBuild.run": "onFileChange",
+    "latex-workshop.latex.watch.files.enabled": true,
+    "latex-workshop.latex.watch.useGlobPattern": true,
+    "latex-workshop.latex.watch.files": [
+        "**/*.tex",
+        "**/*.sty",
+        "**/*.cls",
+        "**/*.tikz"
+    ]
+}

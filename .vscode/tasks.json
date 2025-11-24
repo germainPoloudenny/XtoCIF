@@ -1,0 +1,33 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "IDRIS",
+      "type": "shell",
+      "command": "ssh uvv78gt@jean-zay.idris.fr",
+      "problemMatcher": [],
+      "runOptions": { "runOn": "folderOpen" }
+    },
+    {
+      "label": "RSYNC",
+      "type": "shell",
+      "command": "tmux attach -t jz",
+      "problemMatcher": [],
+      "runOptions": { "runOn": "folderOpen" }
+    },
+    {
+      "label": "Tensorboard",
+      "type": "shell",
+      "command": "tmux attach -t tb",
+      "problemMatcher": [],
+      "runOptions": { "runOn": "folderOpen" }
+    },
+    {
+      "label": "decifer",
+      "type": "shell",
+      "command": "tmux attach -t decifer",
+      "problemMatcher": [],
+      "runOptions": { "runOn": "folderOpen" }
+    }
+  ]
+}
