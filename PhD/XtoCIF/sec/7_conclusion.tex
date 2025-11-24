@@ -1,0 +1,9 @@
+\section{Conclusion}
+
+\deCIFer established that PXRD-to-structure inference can be cast as a language-modeling problem over CIF tokens. \xtoCIF keeps that foundation and contributes efficient training plus diffraction-aware decoding that make the workflow practical. By streamlining the PXRD preprocessing stack and tightening the decoding loop with beam search plus \(\Rwp\) reranking, we lower \(\Rwp\) and raise match rate simultaneously on the challenging descriptor‑free NOMA setting. The resulting system trains an order of magnitude faster than the public \deCIFer release, enabling thorough sweeps that were previously impractical and yielding a more reproducible recipe for follow-up work.
+
+Looking ahead, we expect the same recipe to transfer to experimental corpora such as CHILI-100K once the data collection campaign is complete; bridging that gap will require richer augmentation, adaptive beam allocation, and tighter integration with refinement software.
+
+Taken together, these advances demonstrate that test-time scaling and diffraction-aware ranking can elevate autoregressive CIF generators from proof-of-concept to deployment-ready tooling. We expect the techniques presented here, particularly the training throughput improvements and inference stack, to inform subsequent work and to accelerate the broader adoption of PXRD-driven generative models in automated materials discovery workflows.
+
+Code will be released upon acceptance.

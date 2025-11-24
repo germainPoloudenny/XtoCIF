@@ -1,0 +1,20 @@
+# LaTeX build artefacts
+*.aux
+*.bbl
+*.blg
+*.brf
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz
+*.toc
+
+# Primary PDFs generated locally
+main.pdf
+cvpr_main.pdf
+cvpr_supp.pdf
+
+# Bundled CVPR author kit (kept elsewhere if needed)
+cvpr2026_kit.zip
+author-kit-CVPR2026-v1-latex-*/

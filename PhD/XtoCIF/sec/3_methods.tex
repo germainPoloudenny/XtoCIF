@@ -1,0 +1,139 @@
+\section{Methods}
+
+\subsection{PXRD Conditioning Pipeline}
+We inherit the conditioning signal introduced by \deCIFer. Discrete peak sets are broadened directly in reciprocal-space: by default we discretize \(q\in[0,10]\,\text{\AA}^{-1}\) with \(\Delta q = 0.01\), sample the pseudo-Voigt full-width-at-half-maximum from the configurable range \([0.001, 0.10]\), and draw the Gaussian noise standard deviation from \([0.001, 0.05]\). Intensities can be re-scaled and Bernoulli masking can be enabled, although the released configuration fixes the scale to one and disables masking. The outcome is a single-channel trace \(y(q)\) that can be converted back to \(2\theta\) if desired, but is consumed as-is by the conditioner.
+
+While the statistical model matches the public release, its implementation has been rewritten to stream the pseudo-Voigt computation in GPU-friendly chunks, keeping intermediate tensors within a fixed memory budget. Sampling, broadening, and normalization now run in-line with data loading so that the decoder always receives on-device PXRD embeddings without incurring host/device round-trips. These engineering changes make augmentation overhead negligible compared to the decoder forward pass and unlock the throughput gains summarized later in Table~\ref{tab:train-optimization-throughput}.
+
+Consistent with the public \deCIFer\ release, we treat the resulting diffractogram as a single flattened vector and map it to the decoder width through a shallow multilayer perceptron. The MLP (linear~\(\rightarrow\)ReLU stack terminating in a projection to 512 dimensions) produces conditioning tokens that are inserted next to the CIF ``data\_'' delimiters during training and inference. Metadata descriptors (\emph{Comp} / \emph{Comp+SG}) remain part of the textual prompt: the evaluation harness simply preserves the relevant CIF-header text whenever those hints are available, avoiding extra learned tokens. This design keeps the conditioner lightweight, matching the reference implementation in this repository, while still benefiting from the GPU-resident pseudo-Voigt pipeline above.
+
+\subsection{Autoregressive CIF Decoder}
+The CIF generator is a decoder-only transformer that shares its tokenizer and vocabulary with \deCIFer. CIF strings are segmented into lattice tokens, atomic species tokens, fractional coordinates, occupancy values, and symmetry operations. During training we prepend a start-of-sequence token and splice the PXRD conditioning tokens next to every ``data\_'' marker before teacher-forcing the ground-truth CIF tokens. Descriptor regimes are handled by keeping (or dropping) the corresponding textual metadata inside the prompt; we do not add separate learned descriptor embeddings. Boundary-masking prevents conditioning tokens from attending across CIF instances when multiple samples are packed into the same context. The released checkpoints therefore keep the original 8-layer, 8-head GPT-style decoder with GELU feed-forward blocks and learned absolute position embeddings; we retain this backbone intentionally so that \xtoCIF\ remains a drop-in upgrade for existing \deCIFer\ runs.
+
+The optimization objective is the standard cross-entropy of the next CIF token with masked padding positions (no label smoothing or auxiliary heads are active by default). We experimented with temperature annealing and prefix-classification heads, but the public recipe keeps the simpler loss and relies on the evaluation harness to discard invalid generations. Practitioners can still script additional regularizers through the released code, yet all reported checkpoints are trained with the vanilla objective described above.
+
+\subsection{Train Optimization}
+Compared with the baseline implementation, the training pipeline has been streamlined to shorten time-to-result and improve experimental control:
+\begin{itemize}
+  \item \textbf{Multi-GPU orchestration.} Native distributed training now balances mini-batches across accelerators, averages validation statistics synchronously, and delivers near-linear throughput gains when additional devices are available.
+  \item \textbf{Streamlined data serving.} The data loaders employ persistent workers, staged host-to-device transfers, and optional split subsampling, which together shorten input latency and stabilize gradient updates on large batches.
+  \item \textbf{Efficient PXRD augmentation.} The pseudo-Voigt transformation processes diffraction peaks in GPU-resident chunks, keeping the augmentation stage memory-bounded while retaining the fidelity of the broadened profiles.
+\end{itemize}
+
+At inference time we rely on the same evaluation harness that mirrors the training stack. Sampling defaults to a single hypothesis, but the decoder can switch to deterministic beam search with widths up to the range explored in our sweeps. Each candidate is logged once per generation pass, after which an offline stage computes \(\Rwp\), RMSD, and validity summaries and can optionally retain only the top-ranked hypotheses per CIF. Separating reranking from decoding keeps the generation loop lightweight while still exposing the deterministic beam analyses used throughout the paper.
+
+\begin{table}[t]
+  \centering
+  \setlength{\tabcolsep}{5pt}
+  \renewcommand{\arraystretch}{1.15}
+  \resizebox{\linewidth}{!}{%
+  \begin{tabular}{lccccc}
+    \toprule
+    \textbf{Run} & \textbf{GPUs} & \textbf{Iter (s)} & \textbf{Batch eff.} & \textbf{Throughput (s$^{-1}$)} & \textbf{Speedup} \\
+    \midrule
+    Reference & 1 & $256.90 \pm 7.36$ & $32\times40\times1$ & $4.99 \pm 0.14$ & $1.0\times$ \\
+    Streamlined data & 1 & $29.17 \pm 2.84$ & $32\times40\times1$ & $44.28 \pm 4.51$ & $8.84\times$ \\
+    Efficient PXRD & 1 & $10.35 \pm 0.13$ & $32\times40\times1$ & $124 \pm 2$ & $24.9\times$ \\
+    Distributed & 2 & $5.82 \pm 0.19$ & $32\times20\times2$ & $220 \pm 7$ & $44.3\times$ \\
+    \bottomrule
+  \end{tabular}}
+  \caption{NOMA throughput (iters 1--10 post warm-up); effective batch = (per-device)$\times$(accum)$\times$(GPUs); speedup vs reference.}
+  \label{tab:train-optimization-throughput}
+\end{table}
+
+
+\subsection{Decoding and Reranking}
+\label{sec:reconstruction-model}
+
+When we study deterministic decoding we disable sampling and rely on the beam-search mode built into the decoder. Algorithm~\ref{alg:decode-rerank} summarizes the scoring procedure used in our analyses. In practice we first materialize all beam outputs and serialize them; the filtering and \(\Rwp\)-based ordering happen offline inside the evaluation pipeline. Leaving the heavy reranking step in post-processing keeps the generation loop lightweight while faithfully implementing the deterministic portfolio analysis discussed below.
+
+\paragraph{Portfolio construction and deduplication.}
+When deterministic mode is enabled we maintain a beam of width \(B\) to explore multiple high-probability continuations. Sequences are scored with length-normalized log-likelihood (Eq.~\eqref{eq:len-norm}), and we prune on end-of-sequence. The collection script discards syntactically invalid CIFs, deduplicates symmetry-equivalent hypotheses (tested via the symmetry operators present in the decoded CIF header), and forwards every surviving hypothesis (at most \(B\) per CIF, though practitioners can raise \(B\) when compute allows) to diffraction-aware reranking.
+
+\begin{algorithm}[t]
+  \small
+  \caption{Deterministic beam search with offline diffraction-aware reranking}
+  \label{alg:decode-rerank}
+  \DontPrintSemicolon
+  \KwIn{PXRD $y$, optional descriptors $d$, beam width $B$, length exponent $\alpha$}
+  \KwOut{ranked pool $\mathcal{C}$, best $s^{\star}$, median $\tilde{s}$}
+  $z \leftarrow$ conditioning prefix built from $(y,d)$\;
+  $\mathcal{H} \leftarrow$ deterministic beam search on $z$ with width $B$ and length control $\alpha$ (no sampling)\;
+  Serialize $\mathcal{H}$ and evaluate each hypothesis offline\;
+  Prune invalid CIFs and merge symmetry-equivalent hypotheses\;
+  $\mathcal{C} \leftarrow$ keep the $B$ best log-likelihood sequences from $\mathcal{H}$\;
+  \For{$s \in \mathcal{C}$}{
+    $I^{\mathrm{calc}} \leftarrow$ PXRD simulated from $s$\;
+    $r_s \leftarrow \Rwp\big(y, I^{\mathrm{calc}}\big)$\;
+  }
+  Order $\mathcal{C}$ by $r_s$ (break ties with length-normalized log-likelihood)\;
+  $s^{\star} \leftarrow$ first element of $\mathcal{C}$\;
+  $\tilde{s} \leftarrow$ median element of $\mathcal{C}$\;
+  \Return{$(\mathcal{C}, s^{\star}, \tilde{s})$}\;
+\end{algorithm}
+
+\subsection{Evaluation Protocol}
+
+We evaluate each test CIF under the same forward model used for conditioning. For every generated candidate we compute: (i) \textbf{validity}, which requires a parsable CIF, a positive-definite unit cell with reasonable edges/angles, occupancies in \((0,1]\), and plausible bonds; (ii) the \textbf{RMSD match rate (MR)}, i.e., the fraction of samples whose symmetry-aware alignment respecting composition attains RMSD \(\le 0.5\,\text{\AA}\); and (iii) the \textbf{weighted-profile residual \( \Rwp \)} calculated on the simulated PXRD. Unless noted, best-of-beam statistics refer to the offline filtering stage described above, which ranks hypotheses by increasing \(\Rwp\) (ties resolved by length-normalized log-probability). We report global medians/means over the retained candidates to assess robustness.
+
+\paragraph{Beam search.} We decode with a beam of width \(B\) to retain multiple high-probability hypotheses and reduce sampling variance. To limit length bias, we normalize scores as
+\begin{equation}
+\mathrm{score}(y_{1:L}) = \frac{1}{L^\alpha} \sum_{t=1}^L \log P(y_t \mid y_{<t}),\label{eq:len-norm}
+\end{equation}
+We set \(\alpha=1.0\) for all reported results and forward the resulting portfolio to diffraction-aware filtering.
+
+% reduced extra vertical whitespace to save space in CVPR format
+
+% Algorithmic beam update details moved to Supplement to save space.
+
+\begin{figure}[t]
+    \centering
+% Prefer vector PDF; omit extension so LaTeX picks PDF if available
+\includegraphics[width=0.8\linewidth]{Figures/new/beam_search_rmsd_match_rate}
+    \caption{Beam size $B$ vs RMSD match rate on NOMA (RMSD $\le 0.5\,\text{\AA}$): gains increase to $B=5$ then saturate; baseline is greedy ($B=1$).}
+    \label{fig:beam_rmsd_match}
+\end{figure}
+
+\paragraph{$\Rwp$ Ranking:}
+Once the decoding stage has produced a portfolio of CIF candidates, we move beyond token-level likelihoods and examine how well each structure captures the underlying crystallography. Every candidate is converted back into atomic coordinates and symmetry information, after which we compute descriptors that summarize the agreement with the experimental diffraction signal. This diffraction-aware ordering prevents the decoder from privileging the sequence that the language model deems most probable when that choice disagrees with the PXRD evidence. We therefore rank candidates using the weighted-profile residual \(\Rwp\). For each generated CIF, we simulate the corresponding powder diffraction pattern and compare it to the experimental profile using the standard refinement residual
+\[
+\Rwp = \left( \frac{\sum_{k} w_k (I_k^{\mathrm{obs}} - I_k^{\mathrm{calc}})^2}{\sum_{k} w_k (I_k^{\mathrm{obs}})^2} \right)^{1/2},
+\]
+where \(I_k^{\mathrm{obs}}\) and \(I_k^{\mathrm{calc}}\) denote the observed and calculated intensities at sampling point \(k\), and \(w_k\) is the customary statistical weight. A small \(\Rwp\) signals that the simulated diffraction curve closely follows the measured pattern, implying that the candidate structure reproduces the long-range order encoded in the experiment. By ordering the beam outputs from lowest to highest \(\Rwp\), we identify CIFs that are not only geometrically consistent but also compatible with the diffraction evidence, leading to samples that are ready for subsequent refinement.
+
+\begin{table}[t]
+\begin{center}
+\centering
+\centering
+\scriptsize
+  \caption{Decoding refinements on NOMA (B=5, N=1{,}000): $\Rwp$ (\(\mu\!\pm\!\sigma\))$\downarrow$ and MR$\uparrow$; largest gains in \emph{No descriptors}, smaller in \emph{Comp}/\emph{Comp+SG}. First row in each block shows the \deCIFer reference values from Fig.~3 (Rwp and MR). For context, the original \deCIFer paper reports \(91.5\%\) MR in the \emph{Comp} regime; our re-evaluation of the released checkpoint under the standardized validator yields \(96.3\%\) for greedy decoding (Table entries).}
+  \label{tab:decoding_refinements}
+\setlength{\tabcolsep}{4pt}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{llcc}
+\toprule
+{\bf Descriptor} & Decoding stack & $\Rwp$ { $(\mu \pm \sigma) \downarrow$} & MR (\%) $\uparrow$ \\
+\midrule
+\multirow{4}{*}{\bf No descriptors}
+  & deCIFer (decode; reference)                   & $0.32$ {$\pm 0.34$} & 5.01 \\
+  & deCIFer (decode)                              & $0.23$ {$\pm 0.26$} & 5.61  \\
+  & deCIFer (decode + beam search)                & $0.18$ {$\pm 0.22$} & 7.71  \\
+  & deCIFer (decode + beam search + $\Rwp$ rank.) & $0.18$ {$\pm 0.22$} & 8.11 \\
+\midrule
+\multirow{4}{*}{\bf Comp}
+  & deCIFer (decode; reference)                   & $0.25$ {$\pm 0.29$} & 91.50 \\
+  & deCIFer (decode)                              & $0.18$ {$\pm 0.21$} & 96.28 \\
+  & deCIFer (decode + beam search)                & $0.15$ {$\pm 0.19$} & 97.29 \\
+  & deCIFer (decode + beam search + $\Rwp$ rank.) & $0.14$ {$\pm 0.19$} & 97.29 \\
+\midrule
+\multirow{4}{*}{\bf Comp+SG}
+  & deCIFer (decode; reference)                   & $0.24$ {$\pm 0.29$} & 94.53 \\
+  & deCIFer (decode)                              & $0.17$ {$\pm 0.21$} & 96.79 \\
+  & deCIFer (decode + beam search)                & $0.15$ {$\pm 0.19$} & 97.30 \\
+  & deCIFer (decode + beam search + $\Rwp$ rank.) & $0.15$ {$\pm 0.19$} & 97.30 \\
+\bottomrule
+\end{tabular}}
+\end{center}
+\end{table}
+
+All ablation studies in this section therefore focus exclusively on \deCIFer, leaving other conditioned variants to future work.

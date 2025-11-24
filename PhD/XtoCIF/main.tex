@@ -1,0 +1,67 @@
+% CVPR-style main paper (default build)
+\documentclass[10pt,twocolumn,letterpaper]{article}
+
+%%%%%%%%% PAPER TYPE  - PLEASE UPDATE FOR FINAL VERSION
+% \usepackage{cvpr}              % To produce the CAMERA-READY version
+\usepackage[review]{cvpr}      % To produce the REVIEW version
+% \usepackage[pagenumbers]{cvpr} % To force page numbers, e.g. for an arXiv version
+
+% Import additional packages in the preamble file, before hyperref
+\input{cvpr_kit_min/preamble}
+
+% Additional packages used by this paper (before hyperref)
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,fit,calc,shapes.misc}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage[ruled,vlined]{algorithm2e}
+\usepackage{float}
+\usepackage{adjustbox}
+\usepackage{multirow}
+% For including SVGs via \includesvg
+\usepackage{svg}
+
+% It is strongly recommended to use hyperref, especially for the review version.
+% hyperref with option pagebackref eases the reviewers' job.
+\definecolor{cvprblue}{rgb}{0.21,0.49,0.74}
+\usepackage[pagebackref,breaklinks,colorlinks,allcolors=cvprblue]{hyperref}
+
+\input{macros}
+\input{paper_metadata}
+
+%%%%%%%%% PAPER ID  - PLEASE UPDATE
+% Paper ID is defined in paper_metadata.tex as \paperID
+\def\confName{CVPR}
+\def\confYear{2026}
+
+%%%%%%%%% TITLE - PLEASE UPDATE
+\title{\papertitle}
+
+%%%%%%%%% AUTHORS - ANONYMIZED FOR REVIEW
+\ifanonymized
+  \author{Anonymous CVPR submission\\Paper ID \paperID}
+\else
+  \author{\paperauthorline\\[3pt]\paperaffilline}
+\fi
+
+\begin{document}
+\maketitle
+
+% Abstract and content
+\input{sec/0_abstract}
+\input{sec/1_content}
+
+{\small
+    \bibliographystyle{cvpr_kit_min/ieeenat_fullname}
+    \bibliography{main}
+}
+
+% =====================================================================
+% WARNING (CVPR Review): Do NOT include supplementary in this PDF.
+% Build and upload supplementary separately as `cvpr_supp.pdf`:
+%   latexmk -pdf cvpr_supp.tex
+% Then, in CMT, attach `cvpr_supp.pdf` as the Supplementary Material file.
+% =====================================================================
+% \input{sec/X_suppl}
+
+\end{document}

@@ -1,0 +1,431 @@
+\section{Appendix}
+
+\subsection{Code and Data Availability} \label{sec:CodeAndData}
+
+The code for training and using the deCIFer model is open source and released under the MIT License. Official source code is available here: \url{https://github.com/FrederikLizakJohansen/deCIFer}.
+
+\subsection{CIF Syntax Standardization}\label{sup-sec:cif_standardization}
+
+To enhance the transformer model to process CIFs effectively, we standardized all CIFs in the dataset. Inspired by CrystaLLM~\citep{antunes2024crystalstructuregenerationautoregressive}, we employed similar pre-processing and tokenization strategies, incorporating additional steps to ensure that CHILI-100K~\citep{FriisJensenJohansen2024} was aligned to the standardized format of NOMA, by the removal certain details such as oxidation states and partial occupancies. We employ the following steps:
+
+\begin{enumerate}
+    \item \textbf{Uniform Structure Conversion}: CIFs were converted to \texttt{pymatgen.Structure} \citep{Ong2013} objects to provide a consistent base representation.
+    \item \textbf{Standardized CIF Regeneration}: Using \texttt{pymatgen.CifWriter}~\citep{Ong2013}, CIFs were regenerated to ensure uniform formatting, eliminate customs headers, etc.
+    \item \textbf{Data Tag Normalization}: The reduced formula, following the \texttt{data\_} tag was replaced with the full cell composition, sorted by atomic number for consistency.
+    \item \textbf{Symmetry Operator Removal}: Symmetry operators were excluded during pre-processing to simplify the data, but reintroduced during evaluation for validating structural matches. This can easily be done because the reintroduction process uses the space group information retained in the pre-processed files, ensuring compatibility and accuracy.
+    \item \textbf{Incorporation of Extra Information}: Custom properties that are easily derived from the composition of each CIF, such as electronegativity, atomic radius, and covalent radius, were appended to each CIF to maximize the readily available information within each CIF.
+    \item \textbf{Oxidation State and Occupancy Filtering}: Oxidation state refers to the charge of an atom within a compound, which can vary depending on chemical bonding. Occupancy indicates the fraction of a particular atomic site that is occupied in the crystal structure (e.g., a value of 1.0 represents a fully occupied site, while 0.5 indicates partial occupancy). All traces of oxidation states were removed, and only crystal structures with full occupancy were retained. This ensures consistency by aligning CHILI-100K~\citep{FriisJensenJohansen2024} with the standardized format of NOMA~\citep{antunes2024crystalstructuregenerationautoregressive}.
+    \item \textbf{Numerical Value Normalization}: Numerical values were rounded to four decimal places.
+\end{enumerate}
+
+Figure~\ref{sup-fig:preprocessed_standardized_cif} shows a pre-processed and standardized CIF from the NOMA dataset alongside its corresponding unit cell representation and a realisation of its corresponding PXRD profile, as could be input into deCIFer.
+\begin{figure}[ht!]
+    \centerline{\includegraphics[width=\columnwidth]{Figures/data_statistics/CIF_preprocced_example.png}}
+    \caption{Illustration of a CIF after applying the pre-processing and standardization steps described. Also shown are the corresponding unit cell representation using VESTA~\citep{VESTA} for visualization and the simulated PXRD profile (with $\sigma^2=0.00$ and FWHM=0.01). The red highlight in the CIF indicates where the original symmetry operators were replaced during pre-processing and would be restored for evaluation.}
+    \label{sup-fig:preprocessed_standardized_cif}
+\end{figure}
+
+\subsection{CIF Tokenization}\label{sup-sec:cif_tokenization}
+
+To process CIF files effectively, we tokenized each file into a sequence of tokens using a custom vocabulary tailored to crystallographic data in the CIF format. Each CIF was parsed to extract key structural and chemical information, such as lattice parameters, atomic positions, and space group symbols. Numerical values were tokenized digit-by-digit, including decimal points and special characters as separate tokens. Table~\ref{sup-table:tokens} shows all supported tokens.
+
+% Combined Supported Tokens Table
+\begin{table}[ht!]
+\centering
+\caption{Supported atoms, CIF tags, space groups, numbers, and special tokens.}
+\small
+\begin{tabular}{p{1.5cm}p{1cm}p{10cm}}
+\toprule
+\textbf{Category} & \textbf{Num.} & \textbf{Tokens} \\
+\midrule
+Atoms & 89 & Si  C  Pb  I  Br  Cl  Eu  O  Fe  Sb  In  S  N  U  Mn  Lu  Se  Tl  Hf  Ir  Ca  Ta  Cr  K  Pm  Mg  Zn  Cu  Sn  Ti  B  W  P  H  Pd  As  Co  Np  Tc  Hg  Pu  Al  Tm  Tb  Ho  Nb  Ge  Zr  Cd  V  Sr  Ni  Rh  Th  Na  Ru  La  Re  Y  Er  Ce  Pt  Ga  Li  Cs  F  Ba  Te  Mo  Gd  Pr  Bi  Sc  Ag  Rb  Dy  Yb  Nd  Au  Os  Pa  Sm  Be  Ac  Xe  Kr  He  Ne  Ar \\
+\midrule
+CIF Tags & 31
+& data\_ \\
+& & loop\_ \\
+& & \_symmetry\_space\_group\_name\_H-M \\
+& & \_symmetry\_Int\_Tables\_number \\
+& & \_cell\_length\_a \\
+& & \_cell\_length\_b \\
+& & \_cell\_length\_c\\
+& & \_cell\_angle\_alpha \\
+& & \_cell\_angle\_beta \\
+& & \_cell\_angle\_gamma \\
+& & \_cell\_volume \\
+& & \_atom\_site\_fract\_x \\
+& & \_atom\_site\_fract\_y \\
+& & \_atom\_site\_fract\_z \\
+& & \_atom\_site\_occupancy \\
+& & \_symmetry\_equiv\_pos\_as\_xyz \\
+& & \_chemical\_formula\_structural \\
+& & \_cell\_formula\_units\_Z \\
+& & \_chemical\_name\_systematic \\
+& & \_chemical\_formula\_sum  \\
+& & \_atom\_site\_symmetry\_multiplicity \\
+& & \_atom\_site\_attached\_hydrogens \\
+& & \_atom\_site\_label\\
+& & \_atom\_site\_type\_symbol  \\
+& & \_atom\_site\_B\_iso\_or\_equiv \\
+& & \_symmetry\_equiv\_pos\_site\_id \\
+& & \_atom\_type\_symbol \\
+& & \_atom\_type\_electronegativity  \\
+& & \_atom\_type\_radius  \\
+& & \_atom\_type\_ionic\_radius  \\
+& & \_atom\_type\_oxidation\_number  \\
+\midrule
+Space Groups & 230 & P6/mmm  Imma  P4\_32\_12  P4\_2/mnm  Fd-3m  P3m1  P-3  P4mm  P4\_332  P4/nnc  P2\_12\_12  Pnn2  Pbcn  P4\_2/n  Cm  R3m  Cmce  Aea2  P-42\_1m  P-42m  P2\_13  R-3  Fm-3  Cmm2  Pn-3n  P6/mcc  P-6m2  P3\_2  P-3m1  P3\_212  I23  P-62m  P4\_2nm  Pma2  Pmma  I-42m  P-31c  Pa-3  Pmmn  Pmmm  P4\_2/ncm  I4/mcm  I-4m2  P3\_1  Pcc2  Cmcm  I222  Fddd  P312  Cccm  P6\_1  F-43c  P6\_322  Pm-3  P3\_121  P6\_4  Ia-3d  Pm-3m  P2\_1/c  C222\_1  Pc  P4/n  Pba2  Ama2  Pbcm  P31m  Pcca  P222  P-43n  Pccm  P6\_422  F23  P42\_12  C222  Pnnn  P6\_3cm  P4\_12\_12  P6/m  Fmm2  I4\_1/a  P4/mbm  Pmn2\_1  P4\_2bc  P4\_22\_12  I-43d  I4/m  P4bm  Fdd2  P3  P6\_122  Pnc2  P4\_2/mcm  P4\_122  Cmc2\_1  P-6c2  R32  P4\_1  P4\_232  Pnna  P422  Pban  Cc  I4\_122  P6\_3/m  P6\_3mc  I4\_1/amd  P4\_2  P4/nmm  Pmna  P4/m  Fm-3m  P4/mmm  Imm2  P4/ncc  P-62c  Ima2  P6\_5  P2/c  P4/nbm  Ibam  P6\_522  P6\_3/mmc  I4/mmm  Fmmm  P2/m  P-4b2  I-4  C2/m  P4\_2/mmc  P4  Fd-3c  P4\_3  P2\_1/m  I-43m  P-42c  F4\_132  Pm  Pccn  P-4n2  P4\_132  P23  I4cm  R3c  Amm2  Immm  Iba2  I4  Fd-3  P1  Pbam  P4\_2/nbc  Im-3  P4\_2/nnm  Pmc2\_1  P-31m  R-3m  Ia-3  P622  F222  P2  P-1  Pmm2  P-4  Aem2  P6\_222  P-3c1  P4\_322  I422  Pnma  P6\_3  P3c1  Pn-3  P4nc  P-6  P4/mcc  I2\_12\_12\_1  P4\_2/mbc  P31c  Ccc2  P4\_2/nmc  P6\_3/mcm  C2  Pbca  P-4c2  I4\_1cd  P2\_1  P3\_112  P4\_2mc  Pn-3m  C2/c  R3  P-43m  I432  P222\_1  I-42d  I-4c2  P6cc  P6\_2  P3\_221  P321  Pca2\_1  I4\_1/acd  I4\_132  F432  Pna2\_1  Ccce  Ibca  P4/mnc  I4\_1md  P2\_12\_12\_1  R-3c  I2\_13  P-4m2  Pm-3n  I4mm  F-43m  Pnnm  P-42\_1c  Cmmm  P6mm  P4\_2cm  P4\_2/m  Im-3m  Fm-3c  I4\_1  P4cc  Cmme \\
+\midrule
+Numbers & 10 & 1 2 3 4 5 6 7 8 9 0 \\
+\midrule
+Special & 13 & x y z . ( ) ’ , $\langle$space$\rangle$ $\langle$newline$\rangle$ $\langle$unk$\rangle$  $\langle$pad$\rangle$  $\langle$cond$\rangle$ \\
+\bottomrule
+\end{tabular}
+\label{sup-table:tokens}
+\end{table}
+
+\subsection{Attention Masking Strategy}
+\label{sec:attention_masking_appendix}
+
+Figure~\ref{fig:attn_masking} provides a detailed visualization of the attention masking strategy employed in our model. It illustrates the log-mean attention weights (averaged over all heads) for a sample sequence, highlighting the isolation of CIFs through attention masking. The figure also demonstrates how the embeddings of the second CIF attend to the conditioning PXRD embedding. Lighter shades in the figure correspond to stronger attention values.
+
+\begin{figure}[t]
+\begin{center}
+\centerline{\includegraphics[width=0.6\textwidth]{Figures/data_statistics/attention_masking.png}}
+\caption{Visualization of the attention masking strategy, showing the log-mean attention weights (averaged over all heads) for an example sequence and highlighting how CIFs are isolated using the attention mask. The figure also illustrates how the embeddings of the second CIF attend to the conditioning PXRD embedding. Lighter shades indicate stronger attention.
+} \label{fig:attn_masking}
+\end{center}
+\vskip -0.2in
+\end{figure}
+
+\subsection{PXRD Simulation}\label{sup-sec:pxrd_simulation}
+
+\paragraph{What do the axes in PXRD mean?} In a typical PXRD experiment, the \textbf{x-axis} corresponds to the magnitude of the scattering vector, commonly denoted by $Q$ (in units of Å$^{-1}$), or sometimes the diffraction angle $2\theta$. In this work, we use $Q =\tfrac{4\pi\sin\theta}{\lambda}$ where $\lambda$ is the radiation wavelength and $\theta$ is the scattering angle. The \textbf{y-axis} represents the scattered intensity observed at each $Q$-value, sometimes normalized to have a maximum intensity of $1$.
+
+\begin{figure}[t]
+\begin{center}
+\centerline{\includegraphics[width=0.8\columnwidth]{Figures/data_statistics/noisebroadness.pdf}}
+\caption{Simulated PXRD profiles with fixed transformation of FWHM and $\sigma_{\mathrm{noise}}^2$ as indicated. Discrete peaks, $\Pcal = \{(q_k,i_k)\}_{k=1}^n$, are shown in red, while the convolved PXRD profiles, $\ybf$, are shown in blue. Examples with minimal and maximal noise and broadening levels are shown for a compound with composition CdRhBr$_2$ and space group R3m.
+}
+\label{noise_broadeness_levels}
+\end{center}
+\vspace{-0.5cm}
+\end{figure}
+
+\paragraph{Peak data and transformations.} Following the methods section, we start with the discrete diffraction peak data: $\Pcal = {(q_k, i_k)_{k=1}^n}$, where each $q_k$ is the center of a reflection peak, and $i_k$ is the associated peak intensity. To simulate experimental effects, we apply transformation $\tau\sim\Tcal$, which includes \textbf{peak broadening} and \textbf{additive noise}.
+
+\paragraph{Peak broadening.} For each peak $k$, centered at $q_k$, we convolve an idealized delta function peak with a pseudo-Voigt profile. At the continuous variable $Q$, the psuedo-Voigt profile is the mixture of a Lorentzian $L$ and a Gaussian $G$, such that
+\begin{equation}
+    \mathrm{PV}_k(Q - q_k) = \eta L(Q - q_k) + (1 - \eta) G(Q - q_k),
+\end{equation}
+where $0 \leq \eta \leq 1$ is fixed at $\eta = 0.5$ in this work. 
+
+Let $\mathrm{FWHM}$ denote the full width at half maximum. The Lorentzian half-width is then $\gamma = \tfrac{\mathrm{FWHM}}{2}$, making
+\begin{equation}
+    L(Q - q_k) = \frac{1}{1 + \left( \tfrac{Q - q_k}{\gamma}\right)}.
+\end{equation}
+The Gaussian standard deviation is $\sigma = \tfrac{\mathrm{FWHM}}{2\sqrt{2 \ln 2}}$, making 
+\begin{equation}
+    G(Q - q_k) = \exp\left( - \tfrac{1}{2} \left( \tfrac{Q - q_k}{\sigma}\right)^2 \right).
+\end{equation}
+
+\paragraph{Convolved PXRD.} Given the peak centers $q_k$, itensities $i_k$, and a choice of FWHM, we obtain the convolved PXRD profile
+\begin{equation}
+    I_{\mathrm{conv}}(Q) = \sum_{k=1}^n i_k\;\mathrm{PV}_k(Q - q_k).
+\end{equation}
+Afterwards, we normalize $I_{\mathrm{conv}}(Q)$ so that its maximum intensity is $1$.
+
+\paragraph{Noise addition.} Let $\epsilon(Q)$ be drawn from a zero-mean Gaussian distribution with variance $\sigma^2_{\mathrm{noise}}$. This yields the final transformed intensity PXRD profile:
+\begin{equation}
+    I(Q) = I_{\mathrm{conv}}(Q) + \epsilon(Q).
+\end{equation}
+
+\paragraph{Implementation details.} In practice, we use the \texttt{XRDCalculator} from the \texttt{pymatgen} library~\citep{Ong2013} for generating the initial discrete peak data $\Pcal$. For training, we sample $Q$-values in $[Q_{\mathrm{min}}, Q_{\mathrm{max}}]$ at increments of $Q_{\mathrm{step}}$. We then apply random transformations $\tau$ during model training. Specific parameters for FWHM and $\sigma_{\mathrm{noise}}$ are listed in Table~\ref{sup-table:training_config}.
+
+\begin{table}[ht!]
+    \centering
+    \caption{Training configuration for deCIFer and U-deCIFer.}
+    \label{sup-table:training_config}
+    \begin{tabular}{l>{\raggedleft\arraybackslash}p{10em}}
+    \toprule
+    \textbf{PXRD Transformation Training Parameters}                 & \textbf{Value} \\ 
+    \midrule
+    Wavelength ($\lambda$)                         & Cu-K$\alpha$ (1.5406 Å) \\ 
+    Q-grid ($Q_{\text{min}}$, $Q_{\text{max}}$, $Q_{\text{step}}$) & (0.0, 10.0, 0.01) \\
+    FWHM                               & $\mathcal{U}\sim(0.001, 0.10)$ \\ 
+    Mixing Factor ($\eta$)  & 0.5                   \\ 
+    Noise Magnitude                    &  $\mathcal{U}\sim(0.001, 0.05)$         \\
+    \midrule
+    \textbf{Model / Training Parameters}                 & \textbf{Value} \\ 
+    \midrule
+    Optimizer                          & AdamW                 \\ 
+    Learning Rate                      & $1 \times 10^{-3}$    \\ 
+    Warmup Steps                       & 100                   \\ 
+    Decay Steps                        & 50,000               \\ 
+    Minimum Learning Rate              & $1 \times 10^{-6}$    \\ 
+    Weight Decay                       & 0.1                   \\ 
+    Batch Size                         & 32                    \\ 
+    Gradient Accumulation Steps        & 40                    \\ 
+    Maximum Iterations                 & 50,000                \\ 
+    Embedding Dimension ($n_{\text{embd}}$) & 512              \\ 
+    Layers ($n_{\text{layer}}$)        & 8                     \\ 
+    Attention Heads ($n_{\text{head}}$) & 8                    \\
+    Conditioning Model Layers ($n_{\text{c-layers}}$)          & 2                    \\
+    Conditioning Model Hidden Size    & 512                  \\
+    Sequence Length ($\text{block\_size}$) & 3076              \\ 
+    Precision                          & float16              \\ 
+    Dropout                            & 0.0                   \\ 
+    \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection{Validity Metrics}\label{sup-sec:validity}
+
+To evaluate consistency and chemical sensibility of the generated CIFs, we conduct a series of validation checks. The methodology is described below. 
+
+\textbf{Formula Consistency}
+
+We check for consistency in the chemical formula printed in different locations within the CIF. Specifically, we ensure that:
+\begin{itemize}
+    \item The chemical formula in the \texttt{\_chemical\_formula\_sum} tag matches the reduced chemical formula derived from the atomic sites.
+    \item The chemical formula in the \texttt{\_chemical\_formula\_structural} tag is consistent with the composition derived from the CIF file.
+\end{itemize}
+
+\textbf{Site Multiplicity Consistency}
+
+We validate that the total multiplicity of atomic sites is consistent with the stoichiometry derived from the composition. Specifically, we ensure:
+\begin{itemize}
+    \item The atom types are specified under the \texttt{\_atom\_site\_type\_symbol} tag.
+    \item The multiplicity of each atom is provided in the \texttt{\_atom\_site\_symmetry\_multiplicity} tag.
+    \item The total number of atoms derived from these tags matches the stoichiometry derived from the \texttt{\_chemical\_formula\_sum} tag.
+\end{itemize}
+
+\textbf{Bond Length Reasonability}
+
+To check the reasonableness of bond lengths:
+\begin{itemize}
+    \item We use a Voronoi-based nearest-neighbour algorithm implemented in the \texttt{CrystalNN} module of \texttt{pymatgen}~\citep{Ong2013} to identify bonded atoms.
+    \item For each bond, the expected bond length is calculated based on the atomic radii and the electronegativity difference between the bonded atoms:
+    \begin{itemize}
+        \item If the electronegativity difference is greater than or equal to 1.7, the bond is treated as ionic, and the bond length is based on the cationic and anionic radii.
+        \item Otherwise, the bond is treated as covalent, and the bond length is based on the atomic radii.
+    \end{itemize}
+    \item A bond length reasonableness score $B$ is computed as the fraction of bonds whose lengths are within $\pm30\%$ of the expected lengths.
+    \item A structure passes this test if $B \geq c_{\text{bond}}$, where $c_{\text{bond}} = 1.0$.
+\end{itemize}
+
+\textbf{Space Group Consistency}
+
+We validate the space group by:
+\begin{itemize}
+    \item Extracting the stated space group from the \texttt{\_symmetry\_space\_group\_name\_H-M} tag.
+    \item Analyzing the space group symmetry using the \texttt{SpacegroupAnalyzer} class in \texttt{pymatgen~\citep{Ong2013}}, which employs the \texttt{spglib}~\citep{Togo_texttt_Spglib_a_software_2018} library.
+    \item Comparing the stated space group with the one determined by the symmetry analysis.
+\end{itemize}
+
+\textbf{Overall Validity}
+
+A CIF file is deemed valid if all the above checks are satisfied:
+\begin{itemize}
+    \item Formula consistency (FM).
+    \item Site multiplicity consistency (SM).
+    \item Bond length reasonableness $B \geq c_{\text{bond}}$, where $c_{\text{bond}} = 1.0$ (BL).
+    \item Space group consistency (SG).
+\end{itemize}
+
+\subsection{Match Rate}\label{sup-sec:match_rate}
+
+The Match Rate (MR) quantifies how many generated structures successfully match their corresponding reference structures, as determined by \texttt{StructureMatcher} from the \texttt{pymatgen} library~\citep{Ong2013}. Two structures are considered a match if their compositions, lattice parameters, atomic coordinates, and symmetry are sufficiently similar, according to the tolerances set in \texttt{StructureMatcher}. For the implementation of deCIFer, we follow the example set by CrystaLLM~\citep{antunes2024crystalstructuregenerationautoregressive}, using the parameter values:
+\begin{itemize}
+    \item \texttt{\small stol}~\(= 0.5\): site tolerance, defined as a fraction of the average free length per atom.
+    \item \texttt{\small angle\_tol}~\(= 10^\circ\): maximum angular deviation tolerance.
+    \item \texttt{\small ltol}~\(= 0.3\): fractional length tolerance, meaning the lattice parameters can differ by up to 30\% relative to the reference lattice.
+\end{itemize}
+\texttt{StructureMatcher} compares two structures by:
+\begin{itemize}
+    \item Optionally reducing them to primitive (Niggli) cells.
+    \item Verifying that the lattice parameters are within the fractional length tolerance (\texttt{ltol}).
+    \item Checking that the angles are within the angle tolerance (\texttt{angle\_tol}).
+    \item Ensuring that atomic coordinates align within the site tolerance (\texttt{stol}), normalized by the average free length per atom.
+\end{itemize}
+With these parameters, each generated CIF is compared against its reference CIF*. If the two structures are deemed structurally equivalent, we count that as a successful match. MR is computed as the fraction of structures in the dataset for which a match is found:
+\begin{equation}
+    \mathrm{MR} \;=\; \frac{1}{N}\sum_{i=1}^{N} \mathbf{1}\bigl(\text{match}(\mathrm{CIF},\mathrm{CIF}^*)\bigr),
+\end{equation}
+where $N$ is the total number of structures and $\mathbf{1}(\cdot)$ is an indicator function that returns $1$ if two structures match (according to \texttt{StructureMatcher}) and $0$ otherwise.
+
+
+\subsection{Datasets Statistics}
+
+Figure~\ref{sup-fig:dataset_statistics_NOMA} illustrates the NOMA dataset. Figure~\ref{sup-fig:dataset_statistics_CHILI_100K} illustrates the statistics of the curated CHILI-100K~\citep{FriisJensenJohansen2024} dataset.
+
+\begin{figure}[t!]
+\vskip 0.2in
+\begin{center}
+\centerline{\includegraphics[width=\columnwidth]{Figures/data_statistics/dataset_statistics_NOMA.pdf}}
+\caption{Statistical overview of the NOMA~\citep{antunes2024crystalstructuregenerationautoregressive} dataset (2,283,346 total samples), showing the distribution of space group frequencies, the number of elements per unit cell, elemental occurrences and CIF token lengths (indicating the percentage of CIFs with larger token sequences than the context length of 3076)}
+\label{sup-fig:dataset_statistics_NOMA}
+\end{center}
+\vskip -0.2in
+\end{figure}
+
+\begin{figure}[t!]
+\vskip 0.2in
+\begin{center}
+\centerline{\includegraphics[width=\columnwidth]{Figures/data_statistics/dataset_statistics_CHILI.pdf}}
+\caption{Statistical overview of the curated CHILI-100K~\citep{FriisJensenJohansen2024} dataset (8201 total samples), showing the distribution of space group frequencies, the number of elements per unit cell, elemental occurrences, and CIF token lengths (indicating the percentage of CIFs with larger token sequences than the context length of 3076).}
+\label{sup-fig:dataset_statistics_CHILI_100K}
+\end{center}
+\vskip -0.2in
+\end{figure}
+
+\subsection{Model Architecture- and Training Details}\label{sup-sec:model_architecture}
+
+Table~\ref{sup-table:training_config} provides a concise overview of all hyperparameters and data augmentation settings used for training deCIFer (and its variant U-deCIFer). Below, we describe additional implementation details.
+
+\paragraph{Data-stratification} We extract the \textit{space group} number from each CIF (ranging from $1$ to $230$) and group these into bins of size ten (e.g., $1$–$10$, $11$–$20$, etc.). This heuristic aims to preserve the overall symmetry distribution across splits while reducing the risk of data leakage from structurally similar entries appearing in multiple subsets. While this does ensures coverage across symmetry classes and even representation of crystal systems across the splits, it does not reflect the most intuitive or principled grouping scheme. In particular, it does not account for finer-grained biases that may be embedded in crystal symmetry or composition distributions. This points to a broader issue in materials datasets: statistical artefacts, such as the "Rule of Four" or symmetry clustering~\citep{Gazzarrini2024}, can introduce shortcuts that models may learn, reducing generalisation and interpretability~\citep{palgrave2024ruleoffour}. Future work should explore alternative stratification strategies (e.g., stratified sampling based on structural descriptors) to better assess generalisation.
+
+\paragraph{Hardware Setup} All experiments were conducted on GPUs with sufficient memory to accommodate a batch size of 32 tokenized sequences, each truncated or padded to a context length of 3076. We employed half-precision (float16) to reduce memory usage and improve throughput, ensuring that gradient updates remain numerically stable via built-in automatic mixed-precision.
+
+\paragraph{Optimizer and Learning Rate Schedule.} We adopt AdamW with a base learning rate of $1\times10^{-3}$, which is warmed up for 100 steps and then gradually decayed to $1\times10^{-6}$ over 50,000 steps (Table~\ref{sup-table:training_config}). Weight decay is set to 0.1 to regularize model parameters, and we employ gradient accumulation (40 steps) to effectively increase the total number of tokens processed per update.
+
+\paragraph{Transformer Architectural Notes.} The final transformer stack has 8 layers, each with 8 attention heads, and a model dimension of 512 (embedding dimension). The feed-forward blocks inside each layer use a dimension of $4\times512$, and dropout is set to 0.0 to minimize underfitting. We continue to observe stable convergence in practice despite using no dropout.
+
+\paragraph{Maximum Iterations and Convergence.} We train for 50,000 iterations, at which point the model’s cross-entropy loss stabilizes, as illustrated in Figure~\ref{sup-fig:losscurves}. Beyond this range, no significant improvements were observed on validation metrics.
+
+\begin{figure}[t!]
+\vskip 0.2in
+\begin{center}
+\centerline{\includegraphics[width=\columnwidth]{Figures/data_statistics/loss_curves.pdf}}
+\caption{Cross-entropy loss curves for U-deCIFer and deCIFer over 50,000 training iterations, showing progressive reduction in the training and validation losses.}
+\label{sup-fig:losscurves}
+\end{center}
+\vskip -0.2in
+\end{figure}
+
+\subsection{PXRD Embedding Space} 
+
+For completeness, we examined the learned embeddings for 50K random training-set PXRD profiles and applied principle component analysis (PCA) for visualization. As shown in Figure~\ref{fig:pca_embeddings}, the embeddings form distinct gradients when colored by crystal system, cell-volumes, and constituent atomic numbers $Z$, indicating that the model's PXRD embedding captures relevant structural characteristics, such as symmetry, scale, and elemental composition. These patterns highlight the effectiveness of the conditioning mechanism in encoding meaningful structural information directly from the PXRD input.
+
+\begin{figure}[t!]
+\vskip 0.2in
+\begin{center}
+\centerline{\includegraphics[width=0.7\columnwidth]{Figures/data_statistics/pca_train500k.png}}
+\caption{2D PCA projection of learned PXRD embeddings for 500K training-set samples from NOMA. The three subplots are colored by crystal system, $\log$(cell volume), and average atomic number $Z$, illustrating clear gradients that correspond to structural and compositional features as indicated by the arrows.} \label{fig:pca_embeddings}
+\end{center}
+\vskip -0.2in
+\end{figure}
+
+\subsection{Baseline Comparison with and without PXRD}
+\label{app:baseline}
+With regards to the baseline comparison in Table~\ref{tab:baselines}, deCIFer is explicitly conditioned on PXRD data, while the baseline models are conditioned only on composition or latent priors. This distinction means that the comparisons are not direct but instead reveal the relative value of PXRD conditioning. In particular, PXRD conditioning can improve structure prediction when the diffraction signal is rich in structural information, but may introduce ambiguity or conflict with the model’s learned priors in cases where the PXRD pattern is noisy or minimally informative. Perov-5 and Carbon-24 provide strong tests of PXRD conditioning due to their polyhedral complexity and carbon-based structural diversity, where diffraction features can directly inform the model. In contrast, MP-20 is drawn from the Materials Project, a dataset where composition-only models may benefit from learned priors due to the high representation of standard chemistries. MPTS-52 further challenges models with low-symmetry structures, where the PXRD signal can become ambiguous, making it difficult for a model to resolve atomic positions purely from the diffraction pattern. 
+
+\subsection{Additional Results}\label{sup-sec:additional_results}
+
+Figures~\ref{sup-fig:violinplot_robustness}, \ref{fig:barplot_robustness}, and \ref{fig:barplot_chili} provide additional insights into deCIFer's performance. Table~\ref{tab:baseline_validity} shows a detailsed breakdown of the validity metrics for the NOMA test set corresponding to the results in Figure~\ref{fig:combined_violin_table_baseline}. Table~\ref{sup-table:chili_100k_full_validity} shows a detailed breakdown of validity metrics for the NOMA test set and CHILI-100K test set evaluated on two in-distribution (ID) scenarios and one out-of-distribution (OOD) scenario for the PXRD input.
+
+\subsection{Future Work} \label{sup-sec:future_work}
+
+One promising area for improvement lies in exploring more advanced decoding strategies, such as beam search, to enhance the generative model's capabilities in downstream tasks. By maintaining multiple hypotheses during decoding, beam search could produce diverse candidate CIFs for a given PXRD profile, improving structure determination accuracy by ranking outputs based on metrics like $R_{\mathrm{wp}}$. This method could also support optimization strategies that prioritize structural validity and relevance.
+
+Another direction could be to integrate reinforcement learning from human feedback (RLHF) to guide the model more directly toward generating accurate and chemically valid structures~\citep{ziegler2019fine}. By defining a reward function tailored to properties such as low $R_{\mathrm{wp}}$ values, structural integrity, and adherence to chemical constraints, and interaction with a human expert, RLHF could further refine the model's outputs. 
+
+A complementary direction for future improvement lies in increasing the diversity of the training data. While NOMA offers excellent scale, its distribution is skewed toward high-symmetry and well-sampled structures, which limits model generalisation to more uncommon systems. CHILI-100K, with its broader structural complexity and greater representation of low-symmetry crystals, could serve as a valuable training supplement. Mixing synthetic and experimental data, or applying curriculum learning strategies that gradually expose the model to under-represented symmetry groups, could improve generalisation and robustness, particularly for monoclinic and triclinic systems, which remain challenging as seen in Figure~\ref{fig:combined_crystal_systems_gen_samples}.
+
+\begin{table}[h]
+\setlength{\tabcolsep}{2pt} % Default value: 6pt
+\caption{Validity of generated CIFs for the NOMA test set using deCIFer and U-deCIFer. Abbreviations: Form = formula validity, SG = space group validity, BL = bond length validity, SM = site multiplicity validity. Overall validity (Val.) is calculated as the percentage of CIFs that satisfy all four validity metrics simultaneously. Match rate (MR) represents the percentage of generated CIFs that replicate the reference CIF.}
+\label{tab:baseline_validity}
+\vskip 0.1in
+\begin{center}
+% \tiny
+\small
+\begin{tabular}{llcccccc} 
+\toprule
+{\bf Desc.} & {Model} & Form (\%) $\uparrow$ & SG (\%) $\uparrow$ & BL (\%) $\uparrow$ & SM (\%) $\uparrow$ & Val. (\%) $\uparrow$ & MR (\%) $\uparrow$\\
+\midrule
+\multirow{2}{*}{\bf none} 
+& U-deCIFer & 99.82 & 98.87 & 94.30 & 99.47 & 93.49 & 0.00 \\
+& deCIFer   & 99.42 & 98.85 & 93.69 & 99.46 & 92.66 & 5.01 \\
+\midrule
+\multirow{2}{*}{\bf comp.} 
+& U-deCIFer & 99.87 & 99.09 & 94.40 & 99.46 & 93.78 & 49.30 \\
+& deCIFer   & 99.68 & 99.21 & 94.37 & 99.55 & 93.73 & 91.50 \\
+\midrule
+\multirow{2}{*}{\bf comp.+s.g.} 
+& U-deCIFer & 99.85 & 98.88 & 94.51 & 99.47 & 93.72 & 87.07 \\
+& deCIFer   & 99.74 & 99.26 & 94.38 & 99.58 & 93.90 & 94.53 \\
+\bottomrule
+\end{tabular}
+\end{center}
+\vskip -0.1in
+\end{table}
+
+\begin{table}[h]
+\caption{Validity of generated CIFs for the CHILI-100K test set using deCIFer. Abbreviations: Form = formula validity, SG = space group validity, BL = bond length validity, SM = site multiplicity validity. Overall validity (Val.) is calculated as the percentage of CIFs that satisfy all four validity metrics simultaneously. Match rate (MR) represents the percentage of generated CIFs that replicate the reference CIF.}
+\label{sup-table:chili_100k_full_validity}
+\vskip 0.1in
+\begin{center}
+\scriptsize
+\begin{tabular}{lccccc|c|c}
+\toprule
+ {\bf Dataset} & ($\sigma_{\mathrm{noise}}^2$, {FWHM}) & FORM (\%) $\uparrow$ & SG (\%) $\uparrow$ & BL (\%) $\uparrow$ & SM (\%) $\uparrow$ & Val. (\%)$\;\uparrow$ & MR (\%)$\;\uparrow$\\
+\midrule
+\multirow{3}{*}{\bf NOMA} 
+& ID: (0.00, 0.05)
+& 99.68 & 99.21 & 94.37 & 99.55 & 93.73 & 91.50\\
+& ID: (0.05, 0.10)
+& 99.64 & 99.18 & 94.39 & 99.55 & 93.77 & 89.28\\
+\cmidrule{2-8}
+& OOD: (0.10, 0.20)
+& 99.60 & 99.87 & 92.60 & 99.49 & 91.66 & 77.66\\
+\midrule
+\multirow{3}{*}{\bf CHILI-100K} 
+& ID: (0.00, 0.05)
+& 95.98 & 97.88 & 42.61 & 94.58 & 41.83 & 37.34 \\
+& ID: (0.05, 0.10)
+& 96.17 & 98.22 & 41.50 & 94.47 & 40.95 & 35.97\\
+\cmidrule{2-8}
+& OOD: (0.10, 0.20)
+& 95.80 & 98.42 & 34.11 & 93.91 & 33.62 & 26.09\\
+\bottomrule
+\end{tabular}
+\end{center}
+\vskip -0.1in
+\end{table}
+
+\begin{figure}[t]
+\vskip 0.2in
+\begin{center}
+\centerline{\includegraphics[width=0.5\columnwidth]{Figures/robustness/robustness_crystal_systems_metrics_APPENDIX.pdf}}
+\caption{
+Average metric values by crystal systems for deCIFer on the NOMA test set under two in-distribution transformations of the input PXRD profiles and one out-of-distribution transformation. deCIFer shows better performance for well-represented systems, while rarer, low-symmetry systems lead to worse performance. The right-most plot shows crystal system distribution of the NOMA test set.
+}
+\label{fig:barplot_robustness}
+\end{center}
+\vskip -0.2in
+\end{figure}
+
+\begin{figure}[h]
+\vskip 0.2in
+\begin{center}
+\centerline{\includegraphics[width=0.5\columnwidth]{Figures/chili100k/chili_crystal_systems_metrics.pdf}}
+\caption{
+Average metric values by crystal systems for deCIFer on the CHILI-100K test set show better performance for well-represented systems in the training data (NOMA), while low-symmetry systems lead to worse performance. The right-most plot shows crystal system distribution of the CHILI-100K test set, highlighting that CHILI-100K contains a significantly higher proportion of lower-symmetry structures compared to synthetic datasets like NOMA.
+}
+\label{fig:barplot_chili}
+\end{center}
+\vskip -0.2in
+\end{figure}
+
+
+\begin{figure}[h]
+\vskip 0.2in
+\begin{center}
+\centerline{\includegraphics[width=0.6\columnwidth]{Figures/robustness/chili100k_violin_plot_metrics_APPENDIX.pdf}}
+\caption{
+Distribution of $R_{wp}$ for deCIFer on the NOMA- and CHILI-100K test set, presented as violin plots with overlain boxplots; the median is shown for each distribution. Presented are four in-distribution transformations of the input PXRD profiles and three out-of-distribution transformations.
+}
+\label{sup-fig:violinplot_robustness}
+\end{center}
+\vskip -0.2in
+\end{figure}

@@ -1,0 +1,32 @@
+\section{Results}
+\label{sec:results}
+
+\subsection{Faster Training Enables Wider Sweeps}
+Tab.~\ref{tab:train-optimization-throughput} shows that the optimized pipeline cuts single-GPU iteration time from \(258\pm4\) s to \(10.3\pm0.1\) s and scales to \(5.8\pm0.2\) s on two GPUs, a \(44\times\) throughput gain relative to the public \deCIFer recipe. For a fixed number of training steps this corresponds to an \(\sim\!44\times\) reduction in wall-clock time, enabling systematic restart sweeps. Replaying the released evaluation sweep on 1{,}000 NOMA samples with composition descriptors keeps the baseline greedy sampler at \(96.3~\%\) MR (matching the public checkpoint) but lifts MR to \(97.3~\%\) once we enumerate \(B{=}5\) beams and rerank them, all without altering the architecture, tokenizer, or loss.
+
+\subsection{Accuracy on NOMA}
+In the descriptor‑free regime, deterministic beam search with \(B=5\) coupled with the offline \(\Rwp\) ranking stage (Tab.~\ref{tab:decoding_refinements}) improves both diffraction fidelity and geometry. The released runs reduce \(\Rwp\) from \(0.23\pm0.26\) to \(0.18\pm0.22\) and raise MR from \(5.6~\%\) to \(8.1~\%\), yielding a \(+2.5\) pp absolute (\(+45~\%\)) relative gain, purely through decoding and reranking. When composition or composition‑plus‑space‑group metadata are carried through the prompts, the same sweep keeps MR fixed at \(97.3~\%\) while trimming \(\Rwp\) by 0.03 (Comp) and 0.02 (Comp+SG), nudging these saturated configurations toward the \(98~\%\) coverage band that practitioners target. Qualitatively, the best-of-beam survivors capture symmetry-related variants that the greedy sampler would have discarded.
+
+\paragraph{Validity (vs. \deCIFer).} Validity is not degraded by our contributions. Across NOMA regimes we remain within \(\pm1\) pp of the reference: descriptor-free runs move from \(85.6~\%\) (greedy) to \(86.9~\%\) (beam{+}\(\Rwp\)); composition-aware ones sit at \(\sim97~\%\). Differences with previously reported numbers reflect our evaluation protocol—namely a stricter, standardized validator applied uniformly to \emph{all} methods (successful parsing, positive-definite cells with bounded edges/angles, occupancies in \((0,1]\), bond-length sanity checks) and per-CIF best-of-beam reporting—rather than changes to training or decoding. Note that the \(\Rwp\) stage only \emph{orders} already-generated candidates and cannot introduce new syntax failures. Section~\ref{sec:chili-eval} reuses the exact same protocol.
+
+\paragraph{Recommended settings.} Across descriptor regimes, the strongest and most compute-efficient default is \emph{deterministic beam search with width \(B{=}5\)}, followed by \(\Rwp\)-based reranking of the beam. We therefore adopt \(B{=}5\,+\,\Rwp\) as the recommended setting in the released scripts; larger beams provide diminishing returns, and greedy sampling remains useful when latency dominates.
+
+\paragraph{Why do matches fail?} Inspecting the descriptor‑free evaluation logs with the released Pareto script (Fig.~\ref{fig:xtoCIF-nonmatch-pareto}) shows that most of the 96 RMSD failures on the 1{,}000-sample slice arise from \emph{composition inconsistencies}, followed by \emph{atom-count mismatches}; purely geometric errors are rare once stoichiometry matches. This points to lightweight composition priors, such as classifier heads, two-stage stoichiometry proposals, or PXRD-derived hints, as the clearest lever to raise MR in metadata‑free deployments.
+
+\input{Figures/fig_nonmatch_pareto}
+
+\subsection{Test-Time Scaling Effects}
+Fig.~\ref{fig:beam_rmsd_match} highlights the match-rate gains we obtain as \(B\) grows. Improvements are steep up to \(B=5\), where MR almost doubles relative to greedy decoding. Beyond that point most hypotheses are symmetry-equivalent, yet the extra samples still help the offline \(\Rwp\) filter rescue low-probability but diffraction-consistent candidates. The scoring function in Eq.~\ref{eq:len-norm} uses \(\alpha=1.0\); modest perturbations of \(\alpha\) or \(B>20\) produce marginal differences, so we default to \(B=5\) and only fan out further when coverage is critical.
+
+\subsection{First Look at CHILI-100K}
+\label{sec:chili-eval}
+To gauge how far the NOMA-trained checkpoints transfer, we replayed the descriptor‑free evaluation pipeline on 841 CHILI-100K scans using the same B=5 deterministic beam search and reranking configuration as on NOMA. Tab.~\ref{tab:chili-vs-noma} contrasts these results with the corresponding synthetic sweeps.
+
+\input{Figures/tab_chili_vs_noma}
+
+Three trends emerge. First, syntactic validity only drops from \(86.9~\%\) on NOMA to \(67.9~\%\) on CHILI, confirming that the tokenizer and decoder remain stable on experimental scans even under the stricter validator. Second, the RMSD match rate collapses below \(0.4~\%\) (and the space-group match rate from \(92~\%\) to \(1~\%\)) because peak shifts and impurities violate the symmetry-aware alignment used for reference CIFs. Third, mean \(\Rwp\) rises from \(0.18\) to \(0.81\), indicating that the synthetic instrument underestimates background, preferred orientation, and secondary phases present in CHILI diffractograms. Even so, beam restarts continue to help: reranking slightly improves \(\Rwp\) despite the near-absence of RMSD matches.
+
+Closing this domain gap will require conditioning the simulator on the CHILI optics, mixing experimental scans during fine-tuning, and/or augmenting the scoring pipeline with peak-level alignment that tolerates preferred orientation. Those upgrades are now engineering tasks rather than missing infrastructure: the same evaluation scripts, prompts, and checkpoints used on NOMA already operate end-to-end on CHILI.
+
+\subsection{Ablations}
+Removing the PXRD augmentation schedule degrades descriptor-free match rate by \(1.6~\%\) absolute, primarily because the model overfits to narrow peaks and fails when the test trace exhibits instrumental broadening. Finally, skipping the post-hoc \(\Rwp\) filtering while keeping beam search preserves the validity gains yet raises the best-of-beam \(\Rwp\) by \(\sim0.03\), underscoring that token likelihood alone is a poor proxy for diffraction consistency. Collectively, these studies justify the methodological choices outlined in Sections~\ref{sec:reconstruction-model} and~\ref{sec:dataset}.

@@ -1,0 +1,334 @@
+\begin{thebibliography}{57}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Antunes et~al.(2024)Antunes, Butler, and Grau-Crespo]{antunes2024crystalstructuregenerationautoregressive}
+L.~M. Antunes, K.~T. Butler, and R.~Grau-Crespo.
+\newblock Crystal structure generation with autoregressive large language modeling.
+\newblock \emph{Nature Communications}, 15\penalty0 (1):\penalty0 10570, 2024.
+\newblock ISSN 2041-1723.
+\newblock \doi{10.1038/s41467-024-54639-7}.
+
+\bibitem[Baird(2023)]{Baird2023MPTS}
+S.~Baird.
+\newblock mp-time-split. accessed in 2024.
+\newblock \url{https://github.com/sparks-baird/mp-time-split}, 2023.
+
+\bibitem[Bunn et~al.(2016)Bunn, Hu, and Hattrick-Simpers]{Bunn2016}
+J.~K. Bunn, J.~Hu, and J.~R. Hattrick-Simpers.
+\newblock Semi-supervised approach to phase identification from combinatorial sample diffraction patterns.
+\newblock \emph{JOM}, 68\penalty0 (8):\penalty0 2116--2125, Aug 2016.
+\newblock ISSN 1543-1851.
+\newblock \doi{10.1007/s11837-016-2033-8}.
+
+\bibitem[Castelli et~al.(2012{\natexlab{a}})Castelli, Landis, Thygesen, Dahl, Chorkendorff, Jaramillo, and Jacobsen]{Castelli2012}
+I.~E. Castelli, D.~D. Landis, K.~S. Thygesen, S.~Dahl, I.~Chorkendorff, T.~F. Jaramillo, and K.~W. Jacobsen.
+\newblock New cubic perovskites for one- and two-photon water splitting using the computational materials repository.
+\newblock \emph{Energy Environ. Sci.}, 5:\penalty0 9034--9043, 2012{\natexlab{a}}.
+\newblock \doi{10.1039/C2EE22341D}.
+
+\bibitem[Castelli et~al.(2012{\natexlab{b}})Castelli, Olsen, Datta, Landis, Dahl, Thygesen, and Jacobsen]{Castelli2012_2}
+I.~E. Castelli, T.~Olsen, S.~Datta, D.~D. Landis, S.~Dahl, K.~S. Thygesen, and K.~W. Jacobsen.
+\newblock Computational screening of perovskite metal oxides for optimal solar light capture.
+\newblock \emph{Energy Environ. Sci.}, 5:\penalty0 5814--5819, 2012{\natexlab{b}}.
+\newblock \doi{10.1039/C1EE02717D}.
+
+\bibitem[Cheetham and Goodwin(2014)]{Cheetham2014}
+A.~K. Cheetham and A.~L. Goodwin.
+\newblock Crystallography with powders.
+\newblock \emph{Nature Materials}, 13\penalty0 (8):\penalty0 760--762, Aug 2014.
+
+\bibitem[Cheetham and Seshadri(2024)]{cheetham2024ai_materials_discovery}
+A.~K. Cheetham and R.~Seshadri.
+\newblock Artificial intelligence driving materials discovery? perspective on the article: Scaling deep learning for materials discovery.
+\newblock \emph{Chemistry of Materials}, 36\penalty0 (8):\penalty0 3490--3495, 2024.
+\newblock \doi{10.1021/acs.chemmater.4c00643}.
+
+\bibitem[Dagdelen et~al.(2024)Dagdelen, Dunn, Lee, Walker, Rosen, Ceder, Persson, and Jain]{dagdelen2024structured}
+J.~Dagdelen, A.~Dunn, S.~Lee, N.~Walker, A.~S. Rosen, G.~Ceder, K.~A. Persson, and A.~Jain.
+\newblock Structured information extraction from scientific text with large language models.
+\newblock \emph{Nature Communications}, 15\penalty0 (1):\penalty0 1418, 2024.
+
+\bibitem[Davariashtiyani et~al.(2024)Davariashtiyani, Wang, Hajinazar, Zurek, and Kadkhodaei]{Davariashtiyani_2024}
+A.~Davariashtiyani, B.~Wang, S.~Hajinazar, E.~Zurek, and S.~Kadkhodaei.
+\newblock Impact of data bias on machine learning for crystal compound synthesizability predictions.
+\newblock \emph{Machine Learning: Science and Technology}, 5\penalty0 (4):\penalty0 040501, nov 2024.
+\newblock \doi{10.1088/2632-2153/ad9378}.
+
+\bibitem[Dettmers et~al.(2024)Dettmers, Pagnoni, Holtzman, and Zettlemoyer]{dettmers2024qlora}
+T.~Dettmers, A.~Pagnoni, A.~Holtzman, and L.~Zettlemoyer.
+\newblock Qlora: Efficient finetuning of quantized llms.
+\newblock \emph{Advances in Neural Information Processing Systems}, 36, 2024.
+
+\bibitem[Draxl and Scheffler(2019)]{nomad2019}
+C.~Draxl and M.~Scheffler.
+\newblock The nomad laboratory: From data sharing to artificial intelligence.
+\newblock \emph{Journal of Physics: Materials}, 2, 05 2019.
+\newblock \doi{10.1088/2515-7639/ab13bb}.
+
+\bibitem[Dubey et~al.(2024)Dubey, Jauhri, Pandey, Kadian, Al-Dahle, Letman, Mathur, Schelten, Yang, Fan, et~al.]{dubey2024llama}
+A.~Dubey, A.~Jauhri, A.~Pandey, A.~Kadian, A.~Al-Dahle, A.~Letman, A.~Mathur, A.~Schelten, A.~Yang, A.~Fan, et~al.
+\newblock The llama 3 herd of models.
+\newblock \emph{arXiv preprint arXiv:2407.21783}, 2024.
+
+\bibitem[Friis-Jensen et~al.(2024)Friis-Jensen, Johansen, Anker, Dam, Jensen, and Selvan]{FriisJensenJohansen2024}
+U.~Friis-Jensen, F.~L. Johansen, A.~S. Anker, E.~B. Dam, K.~M.~O. Jensen, and R.~Selvan.
+\newblock Chili: Chemically-informed large-scale inorganic nanomaterials dataset for advancing graph machine learning.
+\newblock In \emph{Proceedings of the 30th ACM SIGKDD Conference on Knowledge Discovery and Data Mining}, KDD '24, page 4962–4973, New York, NY, USA, 2024. Association for Computing Machinery.
+\newblock ISBN 9798400704901.
+\newblock \doi{10.1145/3637528.3671538}.
+
+\bibitem[Gazzarrini et~al.(2024)Gazzarrini, Cersonsky, Bercx, Adorf, and Marzari]{Gazzarrini2024}
+E.~Gazzarrini, R.~K. Cersonsky, M.~Bercx, C.~S. Adorf, and N.~Marzari.
+\newblock The rule of four: anomalous distributions in the stoichiometries of inorganic compounds.
+\newblock \emph{npj Computational Materials}, 10\penalty0 (1):\penalty0 73, Apr 2024.
+\newblock ISSN 2057-3960.
+\newblock \doi{10.1038/s41524-024-01248-z}.
+
+\bibitem[Gra{\v{z}}ulis et~al.(2009)Gra{\v{z}}ulis, Chateigner, Downs, Yokochi, Quir{\'{o}}s, Lutterotti, Manakova, Butkus, Moeck, and Le~Bail]{COD2009}
+S.~Gra{\v{z}}ulis, D.~Chateigner, R.~T. Downs, A.~F.~T. Yokochi, M.~Quir{\'{o}}s, L.~Lutterotti, E.~Manakova, J.~Butkus, P.~Moeck, and A.~Le~Bail.
+\newblock {Crystallography Open Database {--} an open-access collection of crystal structures}.
+\newblock \emph{Journal of Applied Crystallography}, 42\penalty0 (4):\penalty0 726--729, Aug 2009.
+\newblock \doi{10.1107/S0021889809016690}.
+
+\bibitem[Gruver et~al.(2024)Gruver, Sriram, Madotto, Wilson, Zitnick, and Ulissi]{gruver2024finetuned}
+N.~Gruver, A.~Sriram, A.~Madotto, A.~G. Wilson, C.~L. Zitnick, and Z.~W. Ulissi.
+\newblock Fine-tuned language models generate stable inorganic materials as text.
+\newblock In \emph{The Twelfth International Conference on Learning Representations (ICLR)}, 2024.
+
+\bibitem[Guo et~al.(2024)Guo, Saidi, Terban, Valsecchi, Billinge, and Lipson]{guo2024abinitiostructuresolutions}
+G.~Guo, T.~Saidi, M.~Terban, M.~Valsecchi, S.~J. Billinge, and H.~Lipson.
+\newblock Ab initio structure solutions from nanocrystalline powder diffraction data, 2024.
+
+\bibitem[Gupta et~al.(2022)Gupta, Zaki, Krishnan, and Mausam]{gupta2022matscibert}
+T.~Gupta, M.~Zaki, N.~A. Krishnan, and Mausam.
+\newblock Matscibert: A materials domain language model for text mining and information extraction.
+\newblock \emph{npj Computational Materials}, 8\penalty0 (1):\penalty0 102, 2022.
+
+\bibitem[Hocky and White(2022)]{hocky2022natural}
+G.~M. Hocky and A.~D. White.
+\newblock Natural language processing models that automate programming will transform chemistry research and teaching.
+\newblock \emph{Digital discovery}, 1\penalty0 (2):\penalty0 79--83, 2022.
+
+\bibitem[Jablonka et~al.(2024)Jablonka, Schwaller, Ortega-Guerrero, and Smit]{jablonka2024leveraging}
+K.~M. Jablonka, P.~Schwaller, A.~Ortega-Guerrero, and B.~Smit.
+\newblock Leveraging large language models for predictive chemistry.
+\newblock \emph{Nature Machine Intelligence}, 6\penalty0 (2):\penalty0 161--169, 2024.
+
+\bibitem[Jain et~al.(2013{\natexlab{a}})Jain, Ong, Hautier, Chen, Richards, Dacek, Cholia, Gunter, Skinner, Ceder, and Persson]{Jain2013MaterialsProject}
+A.~Jain, S.~P. Ong, G.~Hautier, W.~Chen, W.~D. Richards, S.~Dacek, S.~Cholia, D.~Gunter, D.~Skinner, G.~Ceder, and K.~A. Persson.
+\newblock Commentary: The materials project: A materials genome approach to accelerating materials innovation.
+\newblock \emph{APL Materials}, 1\penalty0 (1):\penalty0 011002, 07 2013{\natexlab{a}}.
+\newblock ISSN 2166-532X.
+\newblock \doi{10.1063/1.4812323}.
+
+\bibitem[Jain et~al.(2013{\natexlab{b}})Jain, Ong, Hautier, Chen, Richards, Dacek, Cholia, Gunter, Skinner, Ceder, and Persson]{materialsproject2013}
+A.~Jain, S.~P. Ong, G.~Hautier, W.~Chen, W.~D. Richards, S.~Dacek, S.~Cholia, D.~Gunter, D.~Skinner, G.~Ceder, and K.~A. Persson.
+\newblock Commentary: The materials project: A materials genome approach to accelerating materials innovation.
+\newblock \emph{APL Materials}, 1\penalty0 (1):\penalty0 011002, 07 2013{\natexlab{b}}.
+\newblock ISSN 2166-532X.
+\newblock \doi{10.1063/1.4812323}.
+
+\bibitem[Jiao et~al.(2023)Jiao, Huang, Lin, Han, Chen, Lu, and Liu]{jiao2023crystal}
+R.~Jiao, W.~Huang, P.~Lin, J.~Han, P.~Chen, Y.~Lu, and Y.~Liu.
+\newblock Crystal structure prediction by joint equivariant diffusion.
+\newblock \emph{Advances in Neural Information Processing Systems}, 36:\penalty0 17464--17497, 2023.
+
+\bibitem[Kirklin et~al.(2015)Kirklin, Saal, Meredig, Thompson, Doak, Aykol, R{\"u}hl, and Wolverton]{kirklin2015open}
+S.~Kirklin, J.~E. Saal, B.~Meredig, A.~Thompson, J.~W. Doak, M.~Aykol, S.~R{\"u}hl, and C.~Wolverton.
+\newblock The open quantum materials database (oqmd): assessing the accuracy of dft formation energies.
+\newblock \emph{npj Computational Materials}, 1\penalty0 (1):\penalty0 1--15, 2015.
+
+\bibitem[Kjær et~al.(2023)Kjær, Anker, Weng, Billinge, Selvan, and Jensen]{kjaer2023deepstruc}
+E.~T.~S. Kjær, A.~S. Anker, M.~N. Weng, S.~J.~L. Billinge, R.~Selvan, and K.~M.~{\O}. Jensen.
+\newblock Deepstruc: towards structure solution from pair distribution function data using deep generative models.
+\newblock \emph{Digital Discovery}, 2:\penalty0 69--80, 2023.
+\newblock \doi{10.1039/D2DD00086E}.
+
+\bibitem[Kosec et~al.(2021)Kosec, Fu, and Krell]{KosecFuKrell}
+M.~Kosec, S.~Fu, and M.~M. Krell.
+\newblock Packing: Towards 2x {NLP} {BERT} acceleration.
+\newblock \emph{CoRR}, abs/2107.02027, 2021.
+
+\bibitem[Lai et~al.(2025)Lai, Xu, Yao, Gao, Liu, Wang, Lu, He, Wang, Zhang, Wang, and Ke]{lai2025endtoendcrystalstructureprediction}
+Q.~Lai, F.~Xu, L.~Yao, Z.~Gao, S.~Liu, H.~Wang, S.~Lu, D.~He, L.~Wang, L.~Zhang, C.~Wang, and G.~Ke.
+\newblock End-to-end crystal structure prediction from powder x-ray diffraction.
+\newblock \emph{Advanced Science}, page 2410722, 2025.
+
+\bibitem[Loshchilov and Hutter(2017)]{AdamW2017}
+I.~Loshchilov and F.~Hutter.
+\newblock Fixing weight decay regularization in adam.
+\newblock \emph{CoRR}, abs/1711.05101, 2017.
+
+\bibitem[M.~Bran et~al.(2024)M.~Bran, Cox, Schilter, Baldassari, White, and Schwaller]{m2024augmenting}
+A.~M.~Bran, S.~Cox, O.~Schilter, C.~Baldassari, A.~D. White, and P.~Schwaller.
+\newblock Augmenting large language models with chemistry tools.
+\newblock \emph{Nature Machine Intelligence}, pages 1--11, 2024.
+
+\bibitem[Miller et~al.(2024)Miller, Chen, Sriram, and Wood]{millerflowmm}
+B.~K. Miller, R.~T. Chen, A.~Sriram, and B.~M. Wood.
+\newblock Flowmm: Generating materials with riemannian flow matching.
+\newblock In \emph{Forty-first International Conference on Machine Learning}, 2024.
+
+\bibitem[Mohanty et~al.(2024)Mohanty, Mehta, Sayeed, Srikumar, and Sparks]{mohanty2024crystext}
+T.~Mohanty, M.~Mehta, H.~M. Sayeed, V.~Srikumar, and T.~D. Sparks.
+\newblock Crystext: A generative ai approach for text-conditioned crystal structure generation using llm.
+\newblock \emph{ChemRxiv}, 2024.
+\newblock \doi{10.26434/chemrxiv-2024-gjhpq}.
+\newblock This content is a preprint and has not been peer-reviewed.
+
+\bibitem[Momma and Izumi(2008)]{VESTA}
+K.~Momma and F.~Izumi.
+\newblock {{\it VESTA}: a three-dimensional visualization system for electronic and structural analysis}.
+\newblock \emph{Journal of Applied Crystallography}, 41\penalty0 (3):\penalty0 653--658, Jun 2008.
+\newblock \doi{10.1107/S0021889808012016}.
+
+\bibitem[Ong et~al.(2013)Ong, Richards, Jain, Hautier, Kocher, Cholia, Gunter, Chevrier, Persson, and Ceder]{Ong2013}
+S.~P. Ong, W.~D. Richards, A.~Jain, G.~Hautier, M.~Kocher, S.~Cholia, D.~Gunter, V.~Chevrier, K.~A. Persson, and G.~Ceder.
+\newblock Python materials genomics (pymatgen): A robust, open-source python library for materials analysis.
+\newblock \emph{Computational Materials Science}, 68:\penalty0 314--319, 2013.
+\newblock \doi{10.1016/j.commatsci.2012.10.028}.
+
+\bibitem[Oviedo et~al.(2019)Oviedo, Ren, Sun, Settens, Liu, Hartono, Ramasamy, DeCost, Tian, Romano, Gilad~Kusne, and Buonassisi]{Oviedo2019}
+F.~Oviedo, Z.~Ren, S.~Sun, C.~Settens, Z.~Liu, N.~T.~P. Hartono, S.~Ramasamy, B.~L. DeCost, S.~I.~P. Tian, G.~Romano, A.~Gilad~Kusne, and T.~Buonassisi.
+\newblock Fast and interpretable classification of small x-ray diffraction datasets using data augmentation and deep neural networks.
+\newblock \emph{npj Computational Materials}, 5\penalty0 (1):\penalty0 60, May 2019.
+\newblock ISSN 2057-3960.
+\newblock \doi{10.1038/s41524-019-0196-x}.
+
+\bibitem[Palgrave(2024)]{palgrave2024ruleoffour}
+R.~Palgrave.
+\newblock An explanation for the rule of four in inorganic materials, 2024.
+\newblock Preprint, not peer-reviewed.
+
+\bibitem[Paszke et~al.(2019)Paszke, Gross, Massa, Lerer, Bradbury, Chanan, Killeen, Lin, Gimelshein, Antiga, Desmaison, Kopf, Yang, DeVito, Raison, Tejani, Chilamkurthy, Steiner, Fang, Bai, and Chintala]{Pytorch2019}
+A.~Paszke, S.~Gross, F.~Massa, A.~Lerer, J.~Bradbury, G.~Chanan, T.~Killeen, Z.~Lin, N.~Gimelshein, L.~Antiga, A.~Desmaison, A.~Kopf, E.~Yang, Z.~DeVito, M.~Raison, A.~Tejani, S.~Chilamkurthy, B.~Steiner, L.~Fang, J.~Bai, and S.~Chintala.
+\newblock Pytorch: An imperative style, high-performance deep learning library.
+\newblock In H.~Wallach, H.~Larochelle, A.~Beygelzimer, F.~d\textquotesingle Alch\'{e}-Buc, E.~Fox, and R.~Garnett, editors, \emph{Advances in Neural Information Processing Systems}, volume~32. Curran Associates, Inc., 2019.
+
+\bibitem[Patterson(1944)]{Patterson1944}
+A.~L. Patterson.
+\newblock Ambiguities in the x-ray analysis of crystal structures.
+\newblock \emph{Phys. Rev.}, 65:\penalty0 195--201, Mar 1944.
+\newblock \doi{10.1103/PhysRev.65.195}.
+
+\bibitem[Pickard(2020)]{Pickard2020CarbonData}
+C.~J. Pickard.
+\newblock {AIRSS Data for Carbon at 10GPa and the C+N+H+O System at 1GPa}.
+\newblock \url{https://archive.materialscloud.org/record/2020.0026/v1}, 2020.
+
+\bibitem[Polak and Morgan(2024)]{polak2024extracting}
+M.~P. Polak and D.~Morgan.
+\newblock Extracting accurate materials data from research papers with conversational language models and prompt engineering.
+\newblock \emph{Nature Communications}, 15\penalty0 (1):\penalty0 1569, 2024.
+
+\bibitem[Riesel et~al.(2024)Riesel, Mackey, Nilforoshan, Xu, Badding, Altman, Leskovec, and Freedman]{riesel2024crystal}
+E.~A. Riesel, T.~Mackey, H.~Nilforoshan, M.~Xu, C.~K. Badding, A.~B. Altman, J.~Leskovec, and D.~E. Freedman.
+\newblock Crystal structure determination from powder diffraction patterns with generative machine learning.
+\newblock \emph{Journal of the American Chemical Society}, 146\penalty0 (44):\penalty0 30340--30348, 2024.
+\newblock \doi{10.1021/jacs.4c10244}.
+\newblock PMID: 39298266.
+
+\bibitem[Rubungo et~al.(2024)Rubungo, Li, Hattrick-Simpers, and Dieng]{rubungo2024llmmatbench}
+A.~N. Rubungo, K.~Li, J.~Hattrick-Simpers, and A.~B. Dieng.
+\newblock {LLM}4mat-bench: Benchmarking large language models for materials property prediction.
+\newblock In \emph{AI for Accelerated Materials Design - NeurIPS 2024}, 2024.
+
+\bibitem[Schilling-Wilhelmi et~al.(2025)Schilling-Wilhelmi, R{\'\i}os-Garc{\'\i}a, Shabih, Gil, Miret, Koch, M{\'a}rquez, and Jablonka]{schilling2025text}
+M.~Schilling-Wilhelmi, M.~R{\'\i}os-Garc{\'\i}a, S.~Shabih, M.~V. Gil, S.~Miret, C.~T. Koch, J.~A. M{\'a}rquez, and K.~M. Jablonka.
+\newblock From text to insight: large language models for chemical data extraction.
+\newblock \emph{Chemical Society Reviews}, 2025.
+
+\bibitem[Schneider et~al.(2010)Schneider, Seibald, Lagally, and Oeckler]{Schneider2010}
+M.~N. Schneider, M.~Seibald, P.~Lagally, and O.~Oeckler.
+\newblock {Ambiguities in the structure determination of antimony tellurides arising from almost homometric structure models and stacking disorder}.
+\newblock \emph{Journal of Applied Crystallography}, 43\penalty0 (5 Part 1):\penalty0 1012--1020, Oct 2010.
+\newblock \doi{10.1107/S0021889810032644}.
+
+\bibitem[Shen et~al.(2022)Shen, Jiang, Lin, Wang, and Sun]{Shen2022}
+Y.~Shen, Y.~Jiang, J.~Lin, C.~Wang, and J.~Sun.
+\newblock {A general method for searching for homometric structures}.
+\newblock \emph{Acta Crystallographica Section B}, 78\penalty0 (1):\penalty0 14--19, Feb 2022.
+\newblock \doi{10.1107/S2052520621011859}.
+
+\bibitem[Szymanski et~al.(2023)Szymanski, Rendy, Fei, Kumar, He, Milsted, McDermott, Gallant, Cubuk, Merchant, et~al.]{szymanski2023autonomous}
+N.~J. Szymanski, B.~Rendy, Y.~Fei, R.~E. Kumar, T.~He, D.~Milsted, M.~J. McDermott, M.~Gallant, E.~D. Cubuk, A.~Merchant, et~al.
+\newblock An autonomous laboratory for the accelerated synthesis of novel materials.
+\newblock \emph{Nature}, 624\penalty0 (7990):\penalty0 86--91, 2023.
+
+\bibitem[Tatlier(2011)]{Tatlier2011}
+M.~Tatlier.
+\newblock Artificial neural network methods for the prediction of framework crystal structures of zeolites from xrd data.
+\newblock \emph{Neural Computing and Applications}, 20\penalty0 (3):\penalty0 365--371, Apr 2011.
+\newblock ISSN 1433-3058.
+\newblock \doi{10.1007/s00521-010-0386-4}.
+
+\bibitem[Togo and Tanaka(2018)]{Togo_texttt_Spglib_a_software_2018}
+A.~Togo and I.~Tanaka.
+\newblock {$\texttt{Spglib}$: a software library for crystal symmetry search}, 2018.
+
+\bibitem[Touvron et~al.(2023)Touvron, Martin, Stone, Albert, Almahairi, Babaei, Bashlykov, Batra, Bhargava, Bhosale, et~al.]{touvron2023llama}
+H.~Touvron, L.~Martin, K.~Stone, P.~Albert, A.~Almahairi, Y.~Babaei, N.~Bashlykov, S.~Batra, P.~Bhargava, S.~Bhosale, et~al.
+\newblock Llama 2: Open foundation and fine-tuned chat models.
+\newblock \emph{arXiv preprint arXiv:2307.09288}, 2023.
+
+\bibitem[Vaswani et~al.(2017)Vaswani, Shazeer, Parmar, Uszkoreit, Jones, Gomez, Kaiser, and Polosukhin]{vaswani2017attentionneed}
+A.~Vaswani, N.~Shazeer, N.~Parmar, J.~Uszkoreit, L.~Jones, A.~N. Gomez, L.~u. Kaiser, and I.~Polosukhin.
+\newblock Attention is all you need.
+\newblock In I.~Guyon, U.~V. Luxburg, S.~Bengio, H.~Wallach, R.~Fergus, S.~Vishwanathan, and R.~Garnett, editors, \emph{Advances in Neural Information Processing Systems}, volume~30. Curran Associates, Inc., 2017.
+
+\bibitem[Wang et~al.(2020)Wang, Xie, Li, Deng, Zhao, Xin, and Lin]{Wang2020}
+H.~Wang, Y.~Xie, D.~Li, H.~Deng, Y.~Zhao, M.~Xin, and J.~Lin.
+\newblock Rapid identification of x-ray diffraction patterns based on very limited data by interpretable convolutional neural networks.
+\newblock \emph{Journal of Chemical Information and Modeling}, 60\penalty0 (4):\penalty0 2004--2011, Apr 2020.
+\newblock ISSN 1549-9596.
+\newblock \doi{10.1021/acs.jcim.0c00020}.
+
+\bibitem[West(2014)]{west2014solid}
+A.~R. West.
+\newblock \emph{Solid State Chemistry and its Applications}.
+\newblock Wiley, 2nd edition, 2014.
+
+\bibitem[Xie et~al.(2022)Xie, Fu, Ganea, Barzilay, and Jaakkola]{xie2022crystaldiffusionvariationalautoencoder}
+T.~Xie, X.~Fu, O.-E. Ganea, R.~Barzilay, and T.~Jaakkola.
+\newblock Crystal diffusion variational autoencoder for periodic material generation, 2022.
+
+\bibitem[Young(1995)]{young1995rietveld}
+R.~Young.
+\newblock \emph{The Rietveld Method}.
+\newblock IUCr monographs on crystallography. Oxford University Press, 1995.
+\newblock ISBN 9780198559122.
+
+\bibitem[Zeni et~al.(2025)Zeni, Pinsler, Z{\"u}gner, Fowler, Horton, Fu, Wang, Shysheya, Crabb{\'e}, Ueda, et~al.]{zeni2025generative}
+C.~Zeni, R.~Pinsler, D.~Z{\"u}gner, A.~Fowler, M.~Horton, X.~Fu, Z.~Wang, A.~Shysheya, J.~Crabb{\'e}, S.~Ueda, et~al.
+\newblock A generative model for inorganic materials design.
+\newblock \emph{Nature}, pages 1--3, 2025.
+
+\bibitem[Zhang et~al.(2024)Zhang, Liu, Zhang, Zhang, Cai, Bi, Du, Qin, Peng, Huang, Li, Shan, Zeng, Zhang, Liu, Li, Chang, Wang, Zhou, Liu, Luo, Wang, Jiang, Wu, Yang, Yang, Yang, Gong, Zhang, Shi, Dai, York, Liu, Zhu, Zhong, Lv, Cheng, Jia, Chen, Ke, E, Zhang, and Wang]{zhang_dpa-2_2024}
+D.~Zhang, X.~Liu, X.~Zhang, C.~Zhang, C.~Cai, H.~Bi, Y.~Du, X.~Qin, A.~Peng, J.~Huang, B.~Li, Y.~Shan, J.~Zeng, Y.~Zhang, S.~Liu, Y.~Li, J.~Chang, X.~Wang, S.~Zhou, J.~Liu, X.~Luo, Z.~Wang, W.~Jiang, J.~Wu, Y.~Yang, J.~Yang, M.~Yang, F.-Q. Gong, L.~Zhang, M.~Shi, F.-Z. Dai, D.~M. York, S.~Liu, T.~Zhu, Z.~Zhong, J.~Lv, J.~Cheng, W.~Jia, M.~Chen, G.~Ke, W.~E, L.~Zhang, and H.~Wang.
+\newblock {DPA}-2: a large atomic model as a multi-task learner.
+\newblock \emph{npj Computational Materials}, 10\penalty0 (1):\penalty0 293, Dec. 2024.
+\newblock ISSN 2057-3960.
+\newblock \doi{10.1038/s41524-024-01493-2}.
+
+\bibitem[Zhang et~al.(2023)Zhang, Chen, Rondinelli, and Chen]{Zhang2023}
+H.~Zhang, W.~W. Chen, J.~M. Rondinelli, and W.~Chen.
+\newblock Et-al: Entropy-targeted active learning for bias mitigation in materials data.
+\newblock \emph{Applied Physics Reviews}, 10\penalty0 (2):\penalty0 021403, 04 2023.
+\newblock ISSN 1931-9401.
+\newblock \doi{10.1063/5.0138913}.
+
+\bibitem[Ziegler et~al.(2019)Ziegler, Stiennon, Wu, Brown, Radford, Amodei, Christiano, and Irving]{ziegler2019fine}
+D.~M. Ziegler, N.~Stiennon, J.~Wu, T.~B. Brown, A.~Radford, D.~Amodei, P.~Christiano, and G.~Irving.
+\newblock Fine-tuning language models from human preferences.
+\newblock \emph{arXiv preprint arXiv:1909.08593}, 2019.
+
+\bibitem{deCIFer2025}
+F.~Lizak Johansen, U.~Friis-Jensen, E.~B.~Dam, K.~M.~Ørnsbjerg Jensen, R.~Mercado, and R.~Selvan,
+deCIFer: Crystal Structure Prediction from Powder Diffraction Data using Autoregressive Language Models,
+arXiv preprint arXiv:2502.02189, 2025.
+
+\end{thebibliography}

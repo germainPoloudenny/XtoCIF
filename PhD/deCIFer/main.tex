@@ -1,0 +1,90 @@
+\documentclass{article}
+
+% Language setting
+% Replace `english' with e.g. `spanish' to change the document language
+\usepackage[english]{babel}
+
+% Set page size and margins
+% Replace `letterpaper' with `a4paper' for UK/EU standard size
+\usepackage[a4paper,top=2cm,bottom=2cm,left=3cm,right=3cm]{geometry}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage[colorlinks=true,citecolor=blue,anchorcolor=purple]{hyperref}
+% \usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage[table]{xcolor}         % colors
+%\usepackage{natbib}
+\usepackage{natbib}
+\setcitestyle{authoryear,citesep={;},aysep={,},yysep={;}}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage[font=small]{caption}
+\usepackage{subcaption}
+\usepackage{graphicx}
+\usepackage[ruled,vlined]{algorithm2e}
+\usepackage{float}
+\usepackage{wrapfig}
+\usepackage{adjustbox}
+\usepackage{enumitem}
+
+\newcommand{\lsvi}{\mathcal{L}_{\text{SVI}}}
+\newcommand{\eqc}{\overset{c}{=}}
+\newcommand{\method}{BMRS}
+\newcommand{\methodn}{\method$_\mathcal{N}$}
+\newcommand{\methodu}{\method$_\mathcal{U}$}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\renewcommand{\cite}{\citep}
+\usepackage[english]{babel}
+\addto\captionsenglish{%
+  \def\sectionname{Section}%
+  \def\subsectionname{Section}%
+}
+\input{macros}
+\title{\bf deCIFer: Crystal Structure Prediction from \\ Powder Diffraction Data using \\ Autoregressive Language Models}
+
+\author{
+  Frederik Lizak Johansen$^{\bot}$, Ulrik Friis-Jensen$^{\dagger}$, Erik Bjørnager Dam$^{\bot}$,\\
+  Kirsten Marie Ørnsbjerg Jensen$^{\dagger}$, Rocío Mercado$^{\ddagger}$, Raghavendra Selvan$^{\bot}$\\[0.5em]
+      ${\bot}$~\small{Department of Computer Science, University of Copenhagen, Denmark}\\
+      ${\dagger}$~\small{Department of Chemistry, University of Copenhagen, Denmark}\\
+      $\ddagger$~\small{Department of Computer Science \& Engineering, Chalmers University of Technology, Sweden}\\[0.5em]
+  \small{\texttt{\{frjo,raghav\}@di.ku.dk}, \texttt{kirsten@chem.ku.dk}, \texttt{rocio@ailab.bio}}
+}
+
+\date{}
+
+\begin{document}
+
+
+\maketitle
+\begin{abstract}
+\input{abstract}
+\footnote{Source code available at: \url{https://github.com/FrederikLizakJohansen/deCIFer}}
+\end{abstract}
+
+\input{content}
+
+\subsubsection*{Acknowledgments} 
+
+The authors thank Richard Michael and Adam F. Sapnik for useful feedback. 
+
+This work is part of a project that has received funding from the European Research Council (ERC) under the European Union’s Horizon 2020 Research and Innovation Programme (grant agreement No. 804066). We are grateful for funding from University of Copenhagen through the Data+ program. RM acknowledges funding provided by the Wallenberg AI, Autonomous Systems, and Software Program (WASP), supported by the Knut and Alice Wallenberg Foundation.
+
+\bibliography{references}
+\bibliographystyle{abbrvnat}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newpage
+
+\appendix
+\input{appendix}
+
+
+\end{document}
